@@ -1,0 +1,2 @@
+D:\Code\Unity\Bubble\obj\Debug\Unity.2D.PixelPerfect-player.csprojAssemblyReference.cache
+D:\Code\Unity\Bubble\obj\Debug\Unity.2D.PixelPerfect-player.csproj.CoreCompileInputs.cache

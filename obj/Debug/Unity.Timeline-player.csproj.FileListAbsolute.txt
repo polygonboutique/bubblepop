@@ -1,0 +1,2 @@
+D:\Code\Unity\Bubble\obj\Debug\Unity.Timeline-player.csproj.CoreCompileInputs.cache
+D:\Code\Unity\Bubble\obj\Debug\Unity.Timeline-player.csprojAssemblyReference.cache

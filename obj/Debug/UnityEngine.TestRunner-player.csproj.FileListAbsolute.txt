@@ -1,0 +1,2 @@
+D:\Code\Unity\Bubble\obj\Debug\UnityEngine.TestRunner-player.csprojAssemblyReference.cache
+D:\Code\Unity\Bubble\obj\Debug\UnityEngine.TestRunner-player.csproj.CoreCompileInputs.cache

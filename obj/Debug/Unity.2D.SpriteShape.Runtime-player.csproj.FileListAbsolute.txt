@@ -1,0 +1,2 @@
+D:\Code\Unity\Bubble\obj\Debug\Unity.2D.SpriteShape.Runtime-player.csprojAssemblyReference.cache
+D:\Code\Unity\Bubble\obj\Debug\Unity.2D.SpriteShape.Runtime-player.csproj.CoreCompileInputs.cache
