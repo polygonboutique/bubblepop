@@ -19,6 +19,7 @@ public class Ball : MonoBehaviour
             COLORS[i].r = lerp;
             COLORS[i].g = Math.Max(lerp * 2 -1.0f, 0.0f);
             COLORS[i].b = 1.0f - lerp;
+            COLORS[i].a = 1.0f;
         }
     }
 
@@ -41,6 +42,8 @@ public class Ball : MonoBehaviour
     {
         Assert.IsTrue(IsPowerOfTwo((ulong) val));
         value = val;
+        
+        AssignColor();
     }
 
     public void IncreaseValue()
