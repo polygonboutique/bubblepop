@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class Ball : MonoBehaviour
 {
@@ -12,7 +13,6 @@ public class Ball : MonoBehaviour
 
     static Ball()
     {
-        // todo: init colors
         for (int i = 0; i < COLORS.Length; ++i)
         {
             float lerp = (float)(i / COLORS.Length);
@@ -30,6 +30,17 @@ public class Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+    }
+    
+    bool IsPowerOfTwo(ulong x)
+    {
+        return (x != 0) && ((x & (x - 1)) == 0);
+    }
+
+    public void SetValue(int val)
+    {
+        Assert.IsTrue(IsPowerOfTwo((ulong) val));
+        value = val;
     }
 
     public void IncreaseValue()

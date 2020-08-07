@@ -25,10 +25,10 @@ public class Level : MonoBehaviour
             {
                 GameObject go = Instantiate(_ballPrefab, Vector3.zero, Quaternion.identity);
                 _grid[x, y] = go.GetComponent<Ball>();
-                
+
                 go.name = String.Format("Ball[{0}][{1}]", x, y);
                 go.transform.localScale = new Vector3(_ballScale, _ballScale, 1);
-                
+
                 var extents = go.GetComponent<Renderer>().bounds.extents;
                 var ballRadius = extents.x;
                 var ballDiameter = ballRadius * 2;
@@ -37,6 +37,8 @@ public class Level : MonoBehaviour
                 var xOffset = isOddRow ? ballRadius : 0;
                 var yOffset = (ballRadius / 4) * y;
                 go.transform.position = START_OFFSET + new Vector3(x * ballDiameter + xOffset, -y * ballDiameter + yOffset, 0);
+
+                _grid[x, y].SetValue(2);
             }
         }
     }
