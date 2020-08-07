@@ -10,21 +10,21 @@ public class Level : MonoBehaviour
     private const int MAX_GRID_HEIGHT = 10;
     private Vector3 START_OFFSET = new Vector3(0, 0, 0);
     private GameObject _ballPrefab;
-    public float ballScale;
     private Ball[,] _grid;
 
     private GameObject _ballShooterGo;
+    private float _ballScale;
     private float _ballRadius;
     private float _ballDiameter;
 
     public void Initialize(GameObject ballPrefab, float ballSize)
     {
-        ballScale = ballSize;
+        _ballScale = ballSize;
         _ballPrefab = ballPrefab;
         _grid = new Ball[MAX_GRID_WIDTH, MAX_GRID_HEIGHT];
         
         var extents = _ballPrefab.GetComponent<Renderer>().bounds.extents;
-        _ballPrefab.transform.localScale = new Vector3(ballScale, ballScale, 1);
+        _ballPrefab.transform.localScale = new Vector3(_ballScale, _ballScale, 1);
 
        _ballRadius = extents.x;
        _ballDiameter = _ballRadius * 2;
