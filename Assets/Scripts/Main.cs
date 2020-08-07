@@ -12,7 +12,7 @@ public class Main : MonoBehaviour
     {
         _levelGo = new GameObject();
         Level levelComponent = _levelGo.AddComponent<Level>();
-        levelComponent.Initialize(ballPrefab);
+        levelComponent.Initialize(ballPrefab, 6);
     }
 
     // Update is called once per frame
