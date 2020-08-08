@@ -1,18 +1,48 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BallSpawner : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private Vector3 START_OFFSET = new Vector3(0, 0, 0);
+    private GameObject _ballPrefab;
+    private float _ballScale;
+    private float _ballRadius;
+    private float _ballDiameter;
+    
+    public void Initialize(GameObject ballPrefab, float ballScale)
     {
+        _ballScale = ballScale;
+        _ballPrefab = ballPrefab;
         
+        var extents = _ballPrefab.GetComponent<Renderer>().bounds.extents;
+        _ballPrefab.transform.localScale = new Vector3(_ballScale, _ballScale, 1);
+
+        _ballRadius = extents.x;
+        _ballDiameter = _ballRadius * 2;
     }
 
-    // Update is called once per frame
-    void Update()
+    public GameObject SpawnBall(Vector3 position)
     {
-        
+        GameObject go = Instantiate(_ballPrefab, position, Quaternion.identity);
+        go.name = String.Format("Ball[]");
+        return go;
+    }
+
+    public GameObject SpawnBallOnGrid(int x, int y)
+    {
+        GameObject go = Instantiate(_ballPrefab, Vector3.zero, Quaternion.identity);
+        go.name = String.Format("Ball[{0}][{1}]", x, y);
+        go.transform.position = GeneratePosition(x, y);
+        return go;
+    }
+    
+    public Vector3 GeneratePosition(int x, int y)
+    {
+        bool isOddRow = y % 2 == 1;
+        var xOffset = isOddRow ? _ballRadius : 0;
+        var yOffset = (_ballRadius / 4) * y;
+        return START_OFFSET + new Vector3(x * _ballDiameter + xOffset, -y * _ballDiameter + yOffset, 0);
     }
 }
