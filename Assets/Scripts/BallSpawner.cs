@@ -26,15 +26,14 @@ public class BallSpawner : MonoBehaviour
     public GameObject SpawnBall(Vector3 position)
     {
         GameObject go = Instantiate(_ballPrefab, position, Quaternion.identity);
-        go.name = String.Format("Ball[]");
+        go.name = "Ball";
         return go;
     }
 
     public GameObject SpawnBallOnGrid(int x, int y)
     {
-        GameObject go = Instantiate(_ballPrefab, Vector3.zero, Quaternion.identity);
+        GameObject go = Instantiate(_ballPrefab, GeneratePosition(x, y), Quaternion.identity);
         go.name = String.Format("Ball[{0}][{1}]", x, y);
-        go.transform.position = GeneratePosition(x, y);
         return go;
     }
     

@@ -29,7 +29,7 @@ public class Level : MonoBehaviour
         {
             for (int x = 0; x < MAX_GRID_WIDTH; ++x)
             {
-                SpawnBallOnGrid(x, y, 2);
+                SpawnBallOnGrid(x, y, 32);
             }
         }
     }
