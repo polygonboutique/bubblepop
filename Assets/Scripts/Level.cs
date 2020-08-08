@@ -157,21 +157,21 @@ public class Level : MonoBehaviour
                 }
             }
         }
-        
+
         if (hitBall)
         {
             Color color = new Color32(255, 255, 22, 255);
             var position = hitBall.transform.position;
             Debug.DrawLine(position, position + hitInfo.normal * 200, color);
-            
+
             var hitBallComponent = hitBall.GetComponent<Ball>();
             var gridPosition = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
             Debug.Log(gridPosition);
-            
+
             // todo: create list of points we need to visit
             // todo: visit path; end of path => try merge
-            
-            
+
+
             if (Input.GetButtonDown("Fire1"))
             {
                 _ballShooter.ShootBall(shootDirection); // kick off tween animation
@@ -180,11 +180,52 @@ public class Level : MonoBehaviour
         }
     }
 
+    private bool IsInRange(float min, float max, float value)
+    {
+        return min <= value && max >= value;
+    }
+
     private Tuple<int, int> ToGridNeighbour(int x, int y, Vector3 normal)
     {
         double angleInRadians = Math.Atan2(normal.y, normal.x);
-        double angleInDegrees = (angleInRadians / Math.PI) * 180.0;
-        
+        float angleInDegrees = (float) (angleInRadians / Math.PI * 180.0f);
+
+        bool north = angleInDegrees > 0;
+        if (north)
+        {
+            if (IsInRange(125.0f, 180.0f, angleInDegrees)) // top-left
+            {
+                Debug.Log("top left");
+            }
+            else if (IsInRange(45.0f, 125.0f, angleInDegrees)) // top
+            {
+                Debug.Log("top");
+            } 
+            else if (IsInRange(0f, 45.0f, angleInDegrees)) // top - right
+            {
+                Debug.Log("top right");
+            }
+            
+            Debug.Log(angleInDegrees);
+        }
+        else
+        {
+            if (IsInRange(-180.0f, -125.0f, angleInDegrees)) // bottom-left
+            {
+                Debug.Log("Bottom left");
+            }
+            else if (IsInRange(-125.0f, -45.0f, angleInDegrees)) // bottom
+            {
+                Debug.Log("Bottom");
+            } 
+            else if (IsInRange(-45.0f, 0f, angleInDegrees)) // bottom - right
+            {
+                Debug.Log("Bottom right");
+            }
+            
+            Debug.Log(angleInDegrees);
+        }
+
         return Tuple.Create(x, y);
     }
 }
