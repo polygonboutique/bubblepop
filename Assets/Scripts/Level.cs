@@ -17,6 +17,8 @@ public class Level : MonoBehaviour
     private float _ballRadius;
     private float _ballDiameter;
 
+    private BallSpawner _ballSpawner;
+
     public void Initialize(GameObject ballPrefab, float ballSize)
     {
         _ballScale = ballSize;
@@ -35,7 +37,7 @@ public class Level : MonoBehaviour
         {
             for (int x = 0; x < MAX_GRID_WIDTH; ++x)
             {
-                SpawnBall(x, y, 2);
+                SpawnBallOnGrid(x, y, 2);
             }
         }
 
@@ -47,20 +49,21 @@ public class Level : MonoBehaviour
         _ballShooterGo = new GameObject();
         _ballShooterGo.AddComponent<BallShooter>();
         
+        
         // calculate ball shooter position
-        // _grid[MAX_GRID_WIDTH / 2, MAX_GRID_HEIGHT]
+
     }
     
-    private void SpawnBall(int x, int y, int value)
+    private void SpawnBallOnGrid(int x, int y, int value)
     {
         GameObject go = Instantiate(_ballPrefab, Vector3.zero, Quaternion.identity);
-        _grid[x, y] = go.GetComponent<Ball>();
         go.name = String.Format("Ball[{0}][{1}]", x, y);
         go.transform.position = GeneratePosition(x, y);
+        _grid[x, y] = go.GetComponent<Ball>();
         _grid[x, y].SetValue(value);
     }
 
-    private void DestroyBall(int x, int y)
+    private void DestroyBallOnGrid(int x, int y)
     {
         Destroy(_grid[x, y].gameObject);
     }

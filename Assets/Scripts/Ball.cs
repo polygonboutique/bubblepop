@@ -9,18 +9,20 @@ public class Ball : MonoBehaviour
     private static int MAX_VALUE = 1024;
     private static Color[] COLORS = new Color[(int) Mathf.Log(MAX_VALUE, 2)];
 
-    private int value = 2;
+    private int _value = 2;
 
     static Ball()
     {
-        for (int i = 0; i < COLORS.Length; ++i)
-        {
-            float lerp = (float)(i / COLORS.Length);
-            COLORS[i].r = lerp;
-            COLORS[i].g = Math.Max(lerp * 2 -1.0f, 0.0f);
-            COLORS[i].b = 1.0f - lerp;
-            COLORS[i].a = 1.0f;
-        }
+        COLORS[0] = new Color32(0, 0, 0, 255);
+        COLORS[1] = new Color32(255, 97, 199, 255);
+        COLORS[2] = new Color32(58, 248, 255, 255);
+        COLORS[3] = new Color32(255, 255, 119, 255);
+        COLORS[4] = new Color32(143, 61, 255, 255);
+        COLORS[5] = new Color32(125, 255, 167, 255);
+        COLORS[6] = new Color32(255, 154, 43, 255);
+        COLORS[7] = new Color32(255, 26, 74, 255);
+        COLORS[8] = new Color32(126, 104, 255, 255);
+        COLORS[9] = new Color32(229, 58, 255, 255);
     }
 
     // Start is called before the first frame update
@@ -41,19 +43,20 @@ public class Ball : MonoBehaviour
     public void SetValue(int val)
     {
         Assert.IsTrue(IsPowerOfTwo((ulong) val));
-        value = val;
+        _value = val;
         
         AssignColor();
     }
 
     public void IncreaseValue()
     {
-        value = Math.Min(MAX_VALUE, value << 1); // go to next pow, if not bigger than max 
+        _value = Math.Min(MAX_VALUE, _value << 1); // go to next pow, if not bigger than max 
         AssignColor();
     }
 
     private void AssignColor()
     {
-        gameObject.GetComponent<SpriteRenderer>().color = COLORS[value];
+        int index = (int) Mathf.Log(_value, 2);
+        gameObject.GetComponent<SpriteRenderer>().color = COLORS[index];
     }
 }
