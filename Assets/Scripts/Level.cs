@@ -78,13 +78,13 @@ public class Level : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1"))
         {
-            // Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            // mouseCoordsWorldSpace.z = 0;
+            Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mouseCoordsWorldSpace.z = 0;
             
-            // Vector3 shootDirection = (mouseCoordsWorldSpace - _currentBallSpawnPosition).normalized;
+            Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
             
-            // ShootBall(shootDirection);
-            // ReloadBall();
+            _ballShooter.ShootBall(shootDirection);
+            _ballShooter.ReloadBall();
         }
         
         

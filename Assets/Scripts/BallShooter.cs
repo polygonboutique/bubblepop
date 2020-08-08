@@ -23,7 +23,7 @@ public class BallShooter : MonoBehaviour
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition, _uiLayer);
     }
 
-    private void ShootBall(Vector2 direction)
+    public void ShootBall(Vector2 direction)
     {
         var body = _currentBall.GetComponent<Rigidbody2D>();
         body.gravityScale = 1.0f;
@@ -31,11 +31,16 @@ public class BallShooter : MonoBehaviour
         _currentBall.layer = _defaultLayer;
     }
 
-    private void ReloadBall()
+    public void ReloadBall()
     {
         _currentBall = _nextBall;
         _currentBall.transform.position = _currentBallSpawnPosition;
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition, _uiLayer);
+    }
+
+    public Vector3 GetPosition()
+    {
+        return _currentBallSpawnPosition;
     }
 
     private GameObject SpawnRandomBall(Vector3 position, int layer)
