@@ -203,23 +203,23 @@ public class Level : MonoBehaviour
             }
 
             var hitBallComponent = hitBall.GetComponent<Ball>();
-            var attachmentGridCoords = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
-            Debug.Log("Is even?" + (hitBallComponent.GetGridYCoord() % 2 == 1));
-
-            _ballShooter.GetCurrentBall().transform.position =
-                _ballSpawner.GeneratePosition(attachmentGridCoords.Item1, attachmentGridCoords.Item2);
-
-            // todo: create list of points we need to visit
-            // todo: visit path; end of path => try merge
-
-
-            if (Input.GetButtonDown("Fire1"))
+            if (PlaceOnGrid(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(),
+                hitInfo.normal, out var gridX, out var gridY))
             {
-                _ballShooter.ShootBall(shootDirection); // kick off tween animation
-                _ballShooter.ReloadBall();
+                _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(gridX, gridY);
 
-                // todo: don't forget to do bounds checks for grid.
-                SpawnBallOnGrid(attachmentGridCoords.Item1, attachmentGridCoords.Item2, Ball.GenerateRandomValue());
+                // todo: create list of points we need to visit
+                // todo: visit path; end of path => try merge
+
+
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    _ballShooter.ShootBall(shootDirection); // kick off tween animation
+                    _ballShooter.ReloadBall();
+
+                    // todo: don't forget to do bounds checks for grid.
+                    SpawnBallOnGrid(gridX, gridY, Ball.GenerateRandomValue());
+                }
             }
         }
     }
@@ -244,15 +244,15 @@ public class Level : MonoBehaviour
         return true;
     }
 
-    private Tuple<int, int> ToGridNeighbour(int x, int y, Vector3 normal)
+    private bool PlaceOnGrid(int x, int y, Vector3 normal, out int outX, out int outY)
     {
+        outX = x;
+        outY = y;
+
         double angleInRadians = Math.Atan2(normal.y, normal.x);
         float angleInDegrees = (float) (angleInRadians / Math.PI * 180.0f);
 
-        int neighbourXOffset = 0;
-        int neighbourYOffset = 0;
         bool isEvenRow = y % 2 == 1;
-
         bool topHalfIntersects = angleInDegrees > 0;
         if (topHalfIntersects)
         {
@@ -280,42 +280,30 @@ public class Level : MonoBehaviour
             if (IsInRange(-180.0f, -165.0f, angleInDegrees)) // left
             {
                 Debug.Log("left");
-                neighbourXOffset = -1;
+                outX = x - 1;
+                outY = y + 0;
             }
             else if (IsInRange(-165.0f, -90.0f, angleInDegrees)) // bottom-left
             {
                 Debug.Log("Bottom left");
-                neighbourYOffset = 1;
-                neighbourXOffset = isEvenRow ? 0 : -1;
-
-                // check if occupied go to bottom right
-                if (!CoordinatesOccupied(x + neighbourXOffset, y + neighbourYOffset))
-                {
-                    neighbourXOffset = isEvenRow ? 1 : 0;
-                }
+                outY = y + 1;
+                outX = x + (isEvenRow ? 0 : -1);
             }
             else if (IsInRange(-90.0f, -15.0f, angleInDegrees)) // bottom - right
             {
                 Debug.Log("Bottom right");
-                neighbourYOffset = 1;
-                neighbourXOffset = isEvenRow ? 1 : 0;
-
-                // check if occupied go to bottom left
-                if (!CoordinatesOccupied(x + neighbourXOffset, y + neighbourYOffset))
-                {
-                    neighbourXOffset = isEvenRow ? 0 : -1;
-                }
+                outY = y + 1;
+                outX = x + (isEvenRow ? 1 : 0);
             }
             else if (IsInRange(-15.0f, 0.0f, angleInDegrees)) // right
             {
                 Debug.Log("right");
-                neighbourXOffset = 1;
+                outX = x + 1;
             }
-            
+
             Debug.Log(angleInDegrees);
         }
-        
-        // todo: make this out param; and return, if we found valid coords
-        return Tuple.Create(x + neighbourXOffset, y + neighbourYOffset);
+
+        return CoordinatesInRange(outX, outY) && CoordinatesOccupied(outX, outY);
     }
 }
