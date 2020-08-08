@@ -21,8 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="258c9b9c-ccec-4df4-91c1-30e917701936" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Bubble/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Bubble/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Ball.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Ball.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Ball.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Ball.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Level.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Level.cs" afterDir="false" />
     </list>
@@ -35,15 +33,17 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/b0/9108dce7/SpriteRenderer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/5D1D5A0A-7C19-404A-97CE-EFD28864629E/77/f3a13f73/Input.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Level.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/f1/06c43265/MonoBehaviour.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/F8918D0C-C5FC-41A1-BABA-01B207A4C016/18/28afe9ca/PhysicsScene.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/F8918D0C-C5FC-41A1-BABA-01B207A4C016/13/1ca9728a/Physics.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.test-framework@1.1.14/UnityEngine.TestRunner/Utils/AttributeHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/b0/9108dce7/SpriteRenderer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/be/420abca9/GameObject.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/da/5b0c55d9/Color.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.test-framework@1.1.14/UnityEngine.TestRunner/Utils/AttributeHelper.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Ball.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Main.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -52,9 +52,9 @@
       <list>
         <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Ball.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level.cs" />
       </list>
     </option>

@@ -45,19 +45,5 @@ public class BallShooter : MonoBehaviour
 
         return go;
     }
-
-    void Update()
-    {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseCoordsWorldSpace.z = 0;
-            
-            Vector3 shootDirection = (mouseCoordsWorldSpace - _currentBallSpawnPosition).normalized;
-            
-            ShootBall(shootDirection);
-            ReloadBall();
-        }
-    }
 }
 

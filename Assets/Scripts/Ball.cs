@@ -43,11 +43,6 @@ public class Ball : MonoBehaviour
         return _active;
     }
 
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        Level.HandleCollision(gameObject, other.gameObject);
-    }
-
     bool IsPowerOfTwo(ulong x)
     {
         return (x != 0) && ((x & (x - 1)) == 0);

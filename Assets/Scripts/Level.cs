@@ -74,25 +74,24 @@ public class Level : MonoBehaviour
         Destroy(_grid[x, y].gameObject);
     }
 
-    public static void HandleCollision(GameObject active, GameObject other)
+    void Update()
     {
-        CURRENT_LEVEL.HandleCollisionInternal(active, other);
-    }
-
-    private void HandleCollisionInternal(GameObject active, GameObject other)
-    {
-        var activeBall = active.GetComponent<Ball>();
-        var otherBall = other.GetComponent<Ball>();
-
-       // attach first to grid,
-       
-       // play bubble effect on active and it's neighbors, 
-       
-       // check neighbors of active ball on grid to see, if can merge
-    }
-
-
-    public void Update()
-    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            // Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            // mouseCoordsWorldSpace.z = 0;
+            
+            // Vector3 shootDirection = (mouseCoordsWorldSpace - _currentBallSpawnPosition).normalized;
+            
+            // ShootBall(shootDirection);
+            // ReloadBall();
+        }
+        
+        
+        // Physics.Raycast()
+        // Physics.c
+        // attach first to grid,
+        // play bubble effect on active and it's neighbors, 
+        // check neighbors of active ball on grid to see, if can merge
     }
 }
