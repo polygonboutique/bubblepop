@@ -23,17 +23,19 @@ public class BallSpawner : MonoBehaviour
         _ballDiameter = _ballRadius * 2;
     }
 
-    public GameObject SpawnBall(Vector3 position)
+    public GameObject SpawnBall(Vector3 position, int value)
     {
         GameObject go = Instantiate(_ballPrefab, position, Quaternion.identity);
         go.name = "Ball";
+        go.GetComponent<Ball>().SetValue(value);
         return go;
     }
 
-    public GameObject SpawnBallOnGrid(int x, int y)
+    public GameObject SpawnBallOnGrid(int x, int y, int value)
     {
         GameObject go = Instantiate(_ballPrefab, GeneratePosition(x, y), Quaternion.identity);
         go.name = String.Format("Ball[{0}][{1}]", x, y);
+        go.GetComponent<Ball>().SetValue(value);
         return go;
     }
     

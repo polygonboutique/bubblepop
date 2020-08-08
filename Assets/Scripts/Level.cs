@@ -25,12 +25,12 @@ public class Level : MonoBehaviour
         
         _grid = new Ball[MAX_GRID_WIDTH, MAX_GRID_HEIGHT];
         
-        int gridHeight = MAX_GRID_HEIGHT;
+        int gridHeight = 6;
         for (int y = 0; y < gridHeight; ++y)
         {
             for (int x = 0; x < MAX_GRID_WIDTH; ++x)
             {
-                SpawnBallOnGrid(x, y, 32);
+                SpawnBallOnGrid(x, y, Ball.GenerateRandomValue());
             }
         }
     }
@@ -62,8 +62,7 @@ public class Level : MonoBehaviour
     
     private void SpawnBallOnGrid(int x, int y, int value)
     {
-        _grid[x, y] = _ballSpawner.SpawnBallOnGrid(x, y).GetComponent<Ball>();
-        _grid[x, y].SetValue(value);
+        _grid[x, y] = _ballSpawner.SpawnBallOnGrid(x, y, value).GetComponent<Ball>();
     }
 
     private void DestroyBallOnGrid(int x, int y)

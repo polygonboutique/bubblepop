@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 public class BallShooter : MonoBehaviour
 {
@@ -17,10 +19,24 @@ public class BallShooter : MonoBehaviour
         _currentBallSpawnPosition = currentBallSpawnPosition;
         _nextBallSpawnPosition = nextBallSpawnPosition;
         
-        _currentBall = _ballSpawner.SpawnBall(_currentBallSpawnPosition);
-        _nextBall = _ballSpawner.SpawnBall(_nextBallSpawnPosition);
+        _currentBall = _ballSpawner.SpawnBall(_currentBallSpawnPosition, Ball.GenerateRandomValue());
+        _nextBall = _ballSpawner.SpawnBall(_nextBallSpawnPosition, Ball.GenerateRandomValue());
     }
-    
+
+    private void ShootBall(Vector2 direction)
+    {
+        var body = _currentBall.GetComponent<Rigidbody2D>();
+        body.gravityScale = 1.0f;
+        body.AddForce(direction * 180, ForceMode2D.Impulse);
+    }
+
+    private void ReloadBall()
+    {
+        _currentBall = _nextBall;
+        _currentBall.transform.position = _currentBallSpawnPosition;
+        _nextBall = _ballSpawner.SpawnBall(_nextBallSpawnPosition, Ball.GenerateRandomValue());
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,7 +48,14 @@ public class BallShooter : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1"))
         {
-            Debug.Log(Input.mousePosition);
+            Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mouseCoordsWorldSpace.z = 0;
+            
+            Vector3 shootDirection = (mouseCoordsWorldSpace - _currentBallSpawnPosition).normalized;
+            
+            ShootBall(shootDirection);
+            ReloadBall();
         }
     }
 }
+
