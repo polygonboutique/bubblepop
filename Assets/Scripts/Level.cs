@@ -202,24 +202,27 @@ public class Level : MonoBehaviour
                 }
             }
 
-            var hitBallComponent = hitBall.GetComponent<Ball>();
-            if (PlaceOnGrid(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(),
-                hitInfo.normal, out var gridX, out var gridY))
+            var hitBallComp = hitBall.GetComponent<Ball>();
+            if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), hitInfo.normal, out var gridX, out var gridY))
             {
                 _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(gridX, gridY);
 
                 // todo: create list of points we need to visit
                 // todo: visit path; end of path => try merge
 
-
                 if (Input.GetButtonDown("Fire1"))
                 {
                     _ballShooter.ShootBall(shootDirection); // kick off tween animation
                     _ballShooter.ReloadBall();
-
-                    // todo: don't forget to do bounds checks for grid.
+                    
+                    // todo: execture this, when tween is done. 
                     SpawnBallOnGrid(gridX, gridY, Ball.GenerateRandomValue());
                 }
+            }
+            else
+            {
+                // todo: hide ball.
+                _ballShooter.GetCurrentBall().transform.position = new Vector3(-1000, -1000, 0);
             }
         }
     }
@@ -236,12 +239,7 @@ public class Level : MonoBehaviour
 
     private bool CoordinatesOccupied(int x, int y)
     {
-        if (_grid[x, y])
-        {
-            return false;
-        }
-
-        return true;
+        return !(_grid[x, y] == null);
     }
 
     private bool PlaceOnGrid(int x, int y, Vector3 normal, out int outX, out int outY)
@@ -256,54 +254,51 @@ public class Level : MonoBehaviour
         bool topHalfIntersects = angleInDegrees > 0;
         if (topHalfIntersects)
         {
-            // if (IsInRange(90.0f, 180.0f, angleInDegrees)) // top-left
-            // {
-            //     Debug.Log("top left");
-            //     neighbourYOffset = -1;
-            //     neighbourXOffset = isEvenRow ? 0 : -1;
-            //
-            //     // todo: check if occupied, and take top-right
-            // }
-            // else if (IsInRange(0f, 90.0f, angleInDegrees)) // top - right
-            // {
-            //     Debug.Log("top right");
-            //     neighbourYOffset = -1;
-            //     neighbourXOffset = isEvenRow ? 1 : 0;
-            //
-            //     // todo: check if occupied, and take top-left
-            // }
-            //
-            // Debug.Log(angleInDegrees);
+            if (IsInRange(180.0f, 165.0f, angleInDegrees)) // left
+            {
+                outX = x - 1;
+                outY = y + 0;
+            }
+            else if (IsInRange(90.0f, 165.0f, angleInDegrees)) // top-left
+            {
+                outX = x + (isEvenRow ? 0 : -1);
+                outY = y - 1;
+            }
+            else if (IsInRange(15.0f, 90.0f, angleInDegrees)) // top - right
+            {
+                outX = x + (isEvenRow ? 1 : 0);
+                outY = y - 1;
+            }
+            else if (IsInRange(0.0f, 15.0f, angleInDegrees)) // right
+            {
+                outX = x + 1;
+                outY = y + 0;
+            }
         }
         else
         {
             if (IsInRange(-180.0f, -165.0f, angleInDegrees)) // left
             {
-                Debug.Log("left");
                 outX = x - 1;
                 outY = y + 0;
             }
             else if (IsInRange(-165.0f, -90.0f, angleInDegrees)) // bottom-left
             {
-                Debug.Log("Bottom left");
-                outY = y + 1;
                 outX = x + (isEvenRow ? 0 : -1);
+                outY = y + 1;
             }
             else if (IsInRange(-90.0f, -15.0f, angleInDegrees)) // bottom - right
             {
-                Debug.Log("Bottom right");
-                outY = y + 1;
                 outX = x + (isEvenRow ? 1 : 0);
+                outY = y + 1;
             }
             else if (IsInRange(-15.0f, 0.0f, angleInDegrees)) // right
             {
-                Debug.Log("right");
                 outX = x + 1;
+                outY = y + 0;
             }
-
-            Debug.Log(angleInDegrees);
         }
 
-        return CoordinatesInRange(outX, outY) && CoordinatesOccupied(outX, outY);
+        return CoordinatesInRange(outX, outY) && !CoordinatesOccupied(outX, outY);
     }
 }
