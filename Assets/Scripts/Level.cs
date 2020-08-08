@@ -157,23 +157,34 @@ public class Level : MonoBehaviour
                 }
             }
         }
-
+        
         if (hitBall)
         {
-            Color col = new Color32(255, 255, 22, 255);
+            Color color = new Color32(255, 255, 22, 255);
             var position = hitBall.transform.position;
-            Debug.DrawLine(position, position + hitInfo.normal.normalized * 200, col);
+            Debug.DrawLine(position, position + hitInfo.normal * 200, color);
             
-            // todo: determine attach grid position
+            var hitBallComponent = hitBall.GetComponent<Ball>();
+            var gridPosition = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
+            Debug.Log(gridPosition);
+            
             // todo: create list of points we need to visit
             // todo: visit path; end of path => try merge
+            
             
             if (Input.GetButtonDown("Fire1"))
             {
                 _ballShooter.ShootBall(shootDirection); // kick off tween animation
-
                 _ballShooter.ReloadBall();
             }
         }
+    }
+
+    private Tuple<int, int> ToGridNeighbour(int x, int y, Vector3 normal)
+    {
+        double angleInRadians = Math.Atan2(normal.y, normal.x);
+        double angleInDegrees = (angleInRadians / Math.PI) * 180.0;
+        
+        return Tuple.Create(x, y);
     }
 }

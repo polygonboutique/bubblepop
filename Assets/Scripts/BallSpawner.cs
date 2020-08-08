@@ -35,7 +35,9 @@ public class BallSpawner : MonoBehaviour
     {
         GameObject go = Instantiate(_ballPrefab, GeneratePosition(x, y), Quaternion.identity);
         go.name = String.Format("Ball[{0}][{1}]", x, y);
-        go.GetComponent<Ball>().SetValue(value);
+        Ball ball = go.GetComponent<Ball>();
+        ball.SetValue(value);
+        ball.SetGridCoords(x, y);
         return go;
     }
     

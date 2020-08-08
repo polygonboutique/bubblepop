@@ -11,6 +11,7 @@ public class Ball : MonoBehaviour
 
     private int _value = 2;
     private bool _active = false;
+    private int _gridX, _gridY;
 
     static Ball()
     {
@@ -31,6 +32,22 @@ public class Ball : MonoBehaviour
         int maxExp = (int) Mathf.Log(Ball.MAX_VALUE, 2);
         int randomExp = rng.Next(1, maxExp);
         return (int) Math.Pow(2, randomExp);
+    }
+
+    public void SetGridCoords(int x, int y)
+    {
+        _gridX = x;
+        _gridY = y;
+    }
+
+    public int GetGridXCoord()
+    {
+        return _gridX;
+    }
+
+    public int GetGridYCoord()
+    {
+        return _gridY;
     }
 
     public void SetActive()
