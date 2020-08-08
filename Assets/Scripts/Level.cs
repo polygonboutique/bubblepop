@@ -37,7 +37,8 @@ public class Level : MonoBehaviour
 
     private void SetupCamera(GameObject mainCamera)
     {
-        mainCamera.transform.position = _ballSpawner.GeneratePosition(MAX_GRID_WIDTH / 2, MAX_GRID_HEIGHT / 2 + 1) + new Vector3(0, 0, -10);
+        var position = _ballSpawner.GeneratePosition(MAX_GRID_WIDTH / 2, MAX_GRID_HEIGHT / 2 + 1);
+        mainCamera.transform.position = position + new Vector3(0, 0, -10);
     }
 
     private void InitializeBallSpawner(GameObject ballPrefab, float ballScale)
