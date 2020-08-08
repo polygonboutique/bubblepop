@@ -40,8 +40,6 @@ public class Level : MonoBehaviour
             }
         }
 
-        ;
-        
         _boundsPlanes = new Plane[2];
         _boundsPlanes[0] = new Plane(Vector3.right, 0.0f); // left
         _boundsPlanes[1] = new Plane(Vector3.left, _ballSpawner.GeneratePosition(MAX_GRID_WIDTH, 0).magnitude); // right
@@ -83,9 +81,13 @@ public class Level : MonoBehaviour
     }
 
 
-    private bool HitBalls(Ray ray, out GameObject gameObject)
+    private bool HitBalls(Ray ray, out GameObject outGameObject, out RaycastHit hitInfo)
     {
-        // RaycastHit hitInfo;
+        float closestDistance = Single.PositiveInfinity;
+        bool found = false;
+        outGameObject = null;
+        hitInfo = new RaycastHit();
+        
         for (int y = 0; y < MAX_GRID_HEIGHT; ++y) {
             for (int x = 0; x < MAX_GRID_WIDTH; ++x)
             {
@@ -93,21 +95,22 @@ public class Level : MonoBehaviour
                 {
                     continue;
                 }
-
+                
                 GameObject go = _grid[x, y].gameObject;
-
-                if (go.GetComponent<Collider>().Raycast(ray, out RaycastHit hitInfo, 100.0f))
+                if (go.GetComponent<Collider>().Raycast(ray, out hitInfo, 1000.0f))
                 {
-                    Debug.Log(hitInfo);
-                    Debug.Log(go);
-                    Debug.Log("----");
+                    if (hitInfo.distance < closestDistance)
+                    {
+                        closestDistance = hitInfo.distance;
+                        outGameObject = go;
+                        found = true;
+                    }
                 }
 
             }
         }
-        
-        gameObject = null;
-        return false;
+
+        return found;
     }
 
     void Update()
@@ -118,7 +121,8 @@ public class Level : MonoBehaviour
         Ray ray = new Ray(_ballShooter.GetPosition(), shootDirection);
         
         GameObject hitBall;
-        if(!HitBalls(ray, out hitBall))
+        RaycastHit hitInfo;
+        if(!HitBalls(ray, out hitBall, out hitInfo))
         {
             // Hit planes
             Color32[] planeColor = new Color32[2];
@@ -139,21 +143,23 @@ public class Level : MonoBehaviour
                 if (plane.Raycast(ray, out float enter))
                 {
                     Vector3 hitPoint = ray.GetPoint(enter);
-                
-                    _ballShooter.GetCurrentBall().transform.position = hitPoint;
-                
+                    
                     Vector3 reflect = Vector3.Reflect(ray.direction, plane.normal);
-                    Debug.DrawLine(hitPoint, hitPoint + reflect * 100, col);
-                
-                    HitBalls(ray, out hitBall);
+                    Debug.DrawLine(hitPoint, hitPoint + reflect * 200, col);
+
+                    Ray nextRay = new Ray(hitPoint, reflect);
+                    HitBalls(nextRay, out hitBall, out hitInfo);
                 }
             }
         }
         
         if (hitBall)
         {
-            Debug.Log("Hit a ball, trace ray with tweens, until we reach end!\n");
-                
+            Color col = new Color32(255, 255, 22, 255);
+            Debug.Log(hitBall);
+            Debug.DrawLine(hitBall.transform.position, hitBall.transform.position + hitInfo.normal.normalized * 200, col);
+            Debug.Log(hitInfo.normal.normalized);
+            
             if (Input.GetButtonDown("Fire1"))
             {
                 _ballShooter.ShootBall(shootDirection);

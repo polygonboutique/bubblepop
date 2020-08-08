@@ -46,4 +46,9 @@ public class BallSpawner : MonoBehaviour
         var yOffset = (_ballRadius / 4) * y;
         return START_OFFSET + new Vector3(x * _ballDiameter + xOffset, -y * _ballDiameter + yOffset, 0);
     }
+
+    public float GetBallRadius()
+    {
+        return _ballRadius;
+    }
 }
