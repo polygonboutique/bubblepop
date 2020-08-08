@@ -44,8 +44,8 @@ public class BallShooter : MonoBehaviour
 
     private GameObject SpawnRandomBall(Vector3 position, int layer)
     {
-        GameObject go = _ballSpawner.SpawnBall(_nextBallSpawnPosition, Ball.GenerateRandomValue());
-        go.layer = _uiLayer;
+        GameObject go = _ballSpawner.SpawnBall(position, Ball.GenerateRandomValue());
+        go.layer = layer;
 
         return go;
     }
