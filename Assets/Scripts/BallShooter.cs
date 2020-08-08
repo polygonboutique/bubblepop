@@ -20,7 +20,7 @@ public class BallShooter : MonoBehaviour
         _currentBall = _ballSpawner.SpawnBall(_currentBallSpawnPosition);
         _nextBall = _ballSpawner.SpawnBall(_nextBallSpawnPosition);
     }
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +30,9 @@ public class BallShooter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Debug.Log(Input.mousePosition);
+        }
     }
 }

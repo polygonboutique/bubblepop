@@ -17,14 +17,15 @@ public class Level : MonoBehaviour
     private GameObject _ballShooterGo;
     private BallShooter _ballShooter;
 
-    public void Initialize(GameObject ballPrefab, float ballSize)
+    public void Initialize(GameObject ballPrefab, GameObject mainCamera, float ballSize)
     {
         InitializeBallSpawner(ballPrefab, ballSize);
         InitializeBallShooter(_ballSpawner);
+        SetupCamera(mainCamera);
         
         _grid = new Ball[MAX_GRID_WIDTH, MAX_GRID_HEIGHT];
         
-        int gridHeight = 6;
+        int gridHeight = MAX_GRID_HEIGHT;
         for (int y = 0; y < gridHeight; ++y)
         {
             for (int x = 0; x < MAX_GRID_WIDTH; ++x)
@@ -32,6 +33,11 @@ public class Level : MonoBehaviour
                 SpawnBallOnGrid(x, y, 32);
             }
         }
+    }
+
+    private void SetupCamera(GameObject mainCamera)
+    {
+        mainCamera.transform.position = _ballSpawner.GeneratePosition(MAX_GRID_WIDTH / 2, MAX_GRID_HEIGHT / 2 + 1) + new Vector3(0, 0, -10);
     }
 
     private void InitializeBallSpawner(GameObject ballPrefab, float ballScale)
@@ -43,8 +49,10 @@ public class Level : MonoBehaviour
 
     private void InitializeBallShooter(BallSpawner ballSpawner)
     {
-        Vector3 currentBallPosition = new Vector3();
-        Vector3 nextBallPosition = new Vector3();
+        int widthIndex = MAX_GRID_WIDTH / 2;
+        
+        Vector3 currentBallPosition = _ballSpawner.GeneratePosition(widthIndex, MAX_GRID_HEIGHT);
+        Vector3 nextBallPosition = _ballSpawner.GeneratePosition(widthIndex - 2, MAX_GRID_HEIGHT + 1);
         
         _ballShooterGo = new GameObject();
         _ballShooter = _ballShooterGo.AddComponent<BallShooter>();
