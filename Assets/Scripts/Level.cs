@@ -165,9 +165,9 @@ public class Level : MonoBehaviour
             Debug.DrawLine(position, position + hitInfo.normal * 200, color);
 
             var hitBallComponent = hitBall.GetComponent<Ball>();
-            var gridPosition = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
-            Debug.Log(hitBall.name);
-            Debug.Log(gridPosition);
+            var attachmentGridCoords = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
+
+            _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(attachmentGridCoords.Item1, attachmentGridCoords.Item2);
 
             // todo: create list of points we need to visit
             // todo: visit path; end of path => try merge
@@ -177,6 +177,9 @@ public class Level : MonoBehaviour
             {
                 _ballShooter.ShootBall(shootDirection); // kick off tween animation
                 _ballShooter.ReloadBall();
+                
+                // todo: don't forget to do bounds checks for grid.
+                SpawnBallOnGrid(attachmentGridCoords.Item1, attachmentGridCoords.Item2, Ball.GenerateRandomValue());
             }
         }
     }
@@ -197,20 +200,21 @@ public class Level : MonoBehaviour
         bool north = angleInDegrees > 0;
         if (north)
         {
-            neighbourYOffset = -1;
-
             if (IsInRange(125.0f, 180.0f, angleInDegrees)) // top-left
             {
                 Debug.Log("top left");
+                neighbourYOffset = -1;
                 neighbourXOffset = -1;
             }
             else if (IsInRange(45.0f, 125.0f, angleInDegrees)) // top
             {
                 Debug.Log("top");
+                neighbourYOffset = -1;
             } 
             else if (IsInRange(0f, 45.0f, angleInDegrees)) // top - right
             {
                 Debug.Log("top right");
+                neighbourYOffset = -1;
                 neighbourXOffset = 1;
             }
             
@@ -218,24 +222,32 @@ public class Level : MonoBehaviour
         }
         else
         {
-            neighbourYOffset = 1;
             if (IsInRange(-180.0f, -125.0f, angleInDegrees)) // bottom-left
             {
                 Debug.Log("Bottom left");
+                neighbourYOffset = 1;
                 neighbourXOffset = -1;
             }
             else if (IsInRange(-125.0f, -45.0f, angleInDegrees)) // bottom
             {
                 Debug.Log("Bottom");
+                neighbourYOffset = 1;
             } 
             else if (IsInRange(-45.0f, 0f, angleInDegrees)) // bottom - right
             {
                 Debug.Log("Bottom right");
+                neighbourYOffset = 1;
                 neighbourXOffset = 1;
             }
             
             Debug.Log(angleInDegrees);
         }
+
+        // todo: if we can't find a valid spot, then we need to sweep around the ball to find a spot
+        // if we are hitting from beneath, and we want to insert to the left, but it is occupied, we
+
+        // sweep left, bottom | right, bottom
+        // sweep left, top | right, top
 
         return Tuple.Create(x + neighbourXOffset, y + neighbourYOffset);
     }
