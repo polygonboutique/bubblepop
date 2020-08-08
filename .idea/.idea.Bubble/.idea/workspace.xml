@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="258c9b9c-ccec-4df4-91c1-30e917701936" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Level.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Level.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -29,9 +28,9 @@
       <list>
         <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Ball.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" />
       </list>
     </option>
   </component>
@@ -79,7 +78,7 @@
       <workItem from="1596820092787" duration="4174000" />
       <workItem from="1596825222572" duration="4753000" />
       <workItem from="1596830248621" duration="266000" />
-      <workItem from="1596869143086" duration="1508000" />
+      <workItem from="1596869143086" duration="2048000" />
     </task>
     <servers />
   </component>

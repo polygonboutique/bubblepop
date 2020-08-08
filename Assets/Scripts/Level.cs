@@ -20,7 +20,7 @@ public class Level : MonoBehaviour
     public void Initialize(GameObject ballPrefab, float ballSize)
     {
         InitializeBallSpawner(ballPrefab, ballSize);
-        InitializeBallShooter();
+        InitializeBallShooter(_ballSpawner);
         
         _grid = new Ball[MAX_GRID_WIDTH, MAX_GRID_HEIGHT];
         
@@ -41,14 +41,14 @@ public class Level : MonoBehaviour
         _ballSpawner.Initialize(ballPrefab, ballScale);
     }
 
-    private void InitializeBallShooter()
+    private void InitializeBallShooter(BallSpawner ballSpawner)
     {
+        Vector3 currentBallPosition = new Vector3();
+        Vector3 nextBallPosition = new Vector3();
+        
         _ballShooterGo = new GameObject();
         _ballShooter = _ballShooterGo.AddComponent<BallShooter>();
-        _ballShooter.Initialize();
-
-
-        // calculate ball shooter position
+        _ballShooter.Initialize(ballSpawner, currentBallPosition, nextBallPosition);
     }
     
     private void SpawnBallOnGrid(int x, int y, int value)
