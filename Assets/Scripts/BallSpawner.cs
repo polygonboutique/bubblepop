@@ -43,8 +43,8 @@ public class BallSpawner : MonoBehaviour
     
     public Vector3 GeneratePosition(int x, int y)
     {
-        bool isOddRow = y % 2 == 1;
-        var xOffset = isOddRow ? _ballRadius : 0;
+        bool isEvenRow = y % 2 == 1;
+        var xOffset = isEvenRow ? _ballRadius : 0;
         var yOffset = (_ballRadius / 4) * y;
         return START_OFFSET + new Vector3(x * _ballDiameter + xOffset, -y * _ballDiameter + yOffset, 0);
     }

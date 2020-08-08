@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Serialization;
 using Plane = UnityEngine.Plane;
 using Vector2 = UnityEngine.Vector2;
@@ -152,6 +153,26 @@ public class Level : MonoBehaviour
                     Vector3 reflect = Vector3.Reflect(ray.direction, plane.normal);
                     Debug.DrawLine(hitPoint, hitPoint + reflect * 200, shootDirColor);
 
+                    {
+                        Vector3 tangent = Vector3.Cross(plane.normal, Vector3.forward);
+
+                        if (tangent.magnitude == 0)
+                        {
+                            tangent = Vector3.Cross(plane.normal, Vector3.up);
+                        }
+
+                        {
+                            Color color = new Color32(255, 255, 22, 255);
+                            Debug.DrawLine(hitPoint, hitPoint + tangent * 200, color);
+                        }
+
+                        {
+                            Color color = new Color32(0, 0, 225, 255);
+                            Debug.DrawLine(hitPoint, hitPoint + plane.normal * 200, color);
+                        }
+                    }
+
+
                     Ray nextRay = new Ray(hitPoint, reflect);
                     HitBalls(nextRay, out hitBall, out hitInfo);
                 }
@@ -160,14 +181,33 @@ public class Level : MonoBehaviour
 
         if (hitBall)
         {
-            Color color = new Color32(255, 255, 22, 255);
-            var position = hitBall.transform.position;
-            Debug.DrawLine(position, position + hitInfo.normal * 200, color);
+            {
+                Vector3 tangent = Vector3.Cross(hitInfo.normal, Vector3.forward);
+
+                if (tangent.magnitude == 0)
+                {
+                    tangent = Vector3.Cross(hitInfo.normal, Vector3.up);
+                }
+
+                {
+                    Color color = new Color32(255, 255, 22, 255);
+                    var position = hitInfo.point;
+                    Debug.DrawLine(position, position + tangent * 200, color);
+                }
+
+                {
+                    Color color = new Color32(0, 0, 225, 255);
+                    var position = hitInfo.point;
+                    Debug.DrawLine(position, position + hitInfo.normal * 200, color);
+                }
+            }
 
             var hitBallComponent = hitBall.GetComponent<Ball>();
             var attachmentGridCoords = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
+            Debug.Log("Is even?" + (hitBallComponent.GetGridYCoord() % 2 == 1));
 
-            _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(attachmentGridCoords.Item1, attachmentGridCoords.Item2);
+            _ballShooter.GetCurrentBall().transform.position =
+                _ballSpawner.GeneratePosition(attachmentGridCoords.Item1, attachmentGridCoords.Item2);
 
             // todo: create list of points we need to visit
             // todo: visit path; end of path => try merge
@@ -177,7 +217,7 @@ public class Level : MonoBehaviour
             {
                 _ballShooter.ShootBall(shootDirection); // kick off tween animation
                 _ballShooter.ReloadBall();
-                
+
                 // todo: don't forget to do bounds checks for grid.
                 SpawnBallOnGrid(attachmentGridCoords.Item1, attachmentGridCoords.Item2, Ball.GenerateRandomValue());
             }
@@ -189,6 +229,21 @@ public class Level : MonoBehaviour
         return min <= value && max >= value;
     }
 
+    private bool CoordinatesInRange(int x, int y)
+    {
+        return x >= 0 && x < MAX_GRID_WIDTH && y >= 0 && y < MAX_GRID_HEIGHT;
+    }
+
+    private bool CoordinatesOccupied(int x, int y)
+    {
+        if (_grid[x, y])
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private Tuple<int, int> ToGridNeighbour(int x, int y, Vector3 normal)
     {
         double angleInRadians = Math.Atan2(normal.y, normal.x);
@@ -196,59 +251,71 @@ public class Level : MonoBehaviour
 
         int neighbourXOffset = 0;
         int neighbourYOffset = 0;
-        
-        bool north = angleInDegrees > 0;
-        if (north)
+        bool isEvenRow = y % 2 == 1;
+
+        bool topHalfIntersects = angleInDegrees > 0;
+        if (topHalfIntersects)
         {
-            if (IsInRange(125.0f, 180.0f, angleInDegrees)) // top-left
-            {
-                Debug.Log("top left");
-                neighbourYOffset = -1;
-                neighbourXOffset = -1;
-            }
-            else if (IsInRange(45.0f, 125.0f, angleInDegrees)) // top
-            {
-                Debug.Log("top");
-                neighbourYOffset = -1;
-            } 
-            else if (IsInRange(0f, 45.0f, angleInDegrees)) // top - right
-            {
-                Debug.Log("top right");
-                neighbourYOffset = -1;
-                neighbourXOffset = 1;
-            }
-            
-            Debug.Log(angleInDegrees);
+            // if (IsInRange(90.0f, 180.0f, angleInDegrees)) // top-left
+            // {
+            //     Debug.Log("top left");
+            //     neighbourYOffset = -1;
+            //     neighbourXOffset = isEvenRow ? 0 : -1;
+            //
+            //     // todo: check if occupied, and take top-right
+            // }
+            // else if (IsInRange(0f, 90.0f, angleInDegrees)) // top - right
+            // {
+            //     Debug.Log("top right");
+            //     neighbourYOffset = -1;
+            //     neighbourXOffset = isEvenRow ? 1 : 0;
+            //
+            //     // todo: check if occupied, and take top-left
+            // }
+            //
+            // Debug.Log(angleInDegrees);
         }
         else
         {
-            if (IsInRange(-180.0f, -125.0f, angleInDegrees)) // bottom-left
+            if (IsInRange(-180.0f, -165.0f, angleInDegrees)) // left
+            {
+                Debug.Log("left");
+                neighbourXOffset = -1;
+            }
+            else if (IsInRange(-165.0f, -90.0f, angleInDegrees)) // bottom-left
             {
                 Debug.Log("Bottom left");
                 neighbourYOffset = 1;
-                neighbourXOffset = -1;
+                neighbourXOffset = isEvenRow ? 0 : -1;
+
+                // check if occupied go to bottom right
+                if (!CoordinatesOccupied(x + neighbourXOffset, y + neighbourYOffset))
+                {
+                    neighbourXOffset = isEvenRow ? 1 : 0;
+                }
             }
-            else if (IsInRange(-125.0f, -45.0f, angleInDegrees)) // bottom
-            {
-                Debug.Log("Bottom");
-                neighbourYOffset = 1;
-            } 
-            else if (IsInRange(-45.0f, 0f, angleInDegrees)) // bottom - right
+            else if (IsInRange(-90.0f, -15.0f, angleInDegrees)) // bottom - right
             {
                 Debug.Log("Bottom right");
                 neighbourYOffset = 1;
+                neighbourXOffset = isEvenRow ? 1 : 0;
+
+                // check if occupied go to bottom left
+                if (!CoordinatesOccupied(x + neighbourXOffset, y + neighbourYOffset))
+                {
+                    neighbourXOffset = isEvenRow ? 0 : -1;
+                }
+            }
+            else if (IsInRange(-15.0f, 0.0f, angleInDegrees)) // right
+            {
+                Debug.Log("right");
                 neighbourXOffset = 1;
             }
             
             Debug.Log(angleInDegrees);
         }
-
-        // todo: if we can't find a valid spot, then we need to sweep around the ball to find a spot
-        // if we are hitting from beneath, and we want to insert to the left, but it is occupied, we
-
-        // sweep left, bottom | right, bottom
-        // sweep left, top | right, top
-
+        
+        // todo: make this out param; and return, if we found valid coords
         return Tuple.Create(x + neighbourXOffset, y + neighbourYOffset);
     }
 }
