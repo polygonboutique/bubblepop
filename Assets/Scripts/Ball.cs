@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 using Random = System.Random;
@@ -10,8 +8,9 @@ public class Ball : MonoBehaviour
     private static int MAX_VALUE = 1024;
     private static Color[] COLORS = new Color[(int) Mathf.Log(MAX_VALUE, 2)];
     private static Random rng = new Random(0);
-    
+
     private int _value = 2;
+    private bool _active = false;
 
     static Ball()
     {
@@ -26,7 +25,7 @@ public class Ball : MonoBehaviour
         COLORS[8] = new Color32(126, 104, 255, 255);
         COLORS[9] = new Color32(229, 58, 255, 255);
     }
-    
+
     public static int GenerateRandomValue()
     {
         int maxExp = (int) Mathf.Log(Ball.MAX_VALUE, 2);
@@ -34,14 +33,19 @@ public class Ball : MonoBehaviour
         return (int) Math.Pow(2, randomExp);
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public void SetActive()
     {
+        _active = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    public bool IsActive()
     {
+        return _active;
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        Level.HandleCollision(gameObject, other.gameObject);
     }
 
     bool IsPowerOfTwo(ulong x)
@@ -53,7 +57,7 @@ public class Ball : MonoBehaviour
     {
         Assert.IsTrue(IsPowerOfTwo((ulong) val));
         _value = val;
-        
+
         AssignColor();
     }
 
@@ -67,5 +71,10 @@ public class Ball : MonoBehaviour
     {
         int index = (int) Mathf.Log(_value, 2);
         gameObject.GetComponent<SpriteRenderer>().color = COLORS[index];
+    }
+
+    public bool CanMerge(Ball ball)
+    {
+        return _value == ball._value;
     }
 }

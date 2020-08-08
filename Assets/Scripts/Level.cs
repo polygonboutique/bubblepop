@@ -17,6 +17,8 @@ public class Level : MonoBehaviour
     private GameObject _ballShooterGo;
     private BallShooter _ballShooter;
 
+    private static Level CURRENT_LEVEL;
+
     public void Initialize(GameObject ballPrefab, GameObject mainCamera, float ballSize)
     {
         InitializeBallSpawner(ballPrefab, ballSize);
@@ -33,6 +35,8 @@ public class Level : MonoBehaviour
                 SpawnBallOnGrid(x, y, Ball.GenerateRandomValue());
             }
         }
+
+        CURRENT_LEVEL = this;
     }
 
     private void SetupCamera(GameObject mainCamera)
@@ -69,8 +73,24 @@ public class Level : MonoBehaviour
     {
         Destroy(_grid[x, y].gameObject);
     }
-    
-  
+
+    public static void HandleCollision(GameObject active, GameObject other)
+    {
+        CURRENT_LEVEL.HandleCollisionInternal(active, other);
+    }
+
+    private void HandleCollisionInternal(GameObject active, GameObject other)
+    {
+        var activeBall = active.GetComponent<Ball>();
+        var otherBall = other.GetComponent<Ball>();
+
+       // attach first to grid,
+       
+       // play bubble effect on active and it's neighbors, 
+       
+       // check neighbors of active ball on grid to see, if can merge
+    }
+
 
     public void Update()
     {
