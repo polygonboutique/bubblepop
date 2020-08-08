@@ -166,6 +166,7 @@ public class Level : MonoBehaviour
 
             var hitBallComponent = hitBall.GetComponent<Ball>();
             var gridPosition = ToGridNeighbour(hitBallComponent.GetGridXCoord(), hitBallComponent.GetGridYCoord(), hitInfo.normal);
+            Debug.Log(hitBall.name);
             Debug.Log(gridPosition);
 
             // todo: create list of points we need to visit
@@ -190,12 +191,18 @@ public class Level : MonoBehaviour
         double angleInRadians = Math.Atan2(normal.y, normal.x);
         float angleInDegrees = (float) (angleInRadians / Math.PI * 180.0f);
 
+        int neighbourXOffset = 0;
+        int neighbourYOffset = 0;
+        
         bool north = angleInDegrees > 0;
         if (north)
         {
+            neighbourYOffset = -1;
+
             if (IsInRange(125.0f, 180.0f, angleInDegrees)) // top-left
             {
                 Debug.Log("top left");
+                neighbourXOffset = -1;
             }
             else if (IsInRange(45.0f, 125.0f, angleInDegrees)) // top
             {
@@ -204,15 +211,18 @@ public class Level : MonoBehaviour
             else if (IsInRange(0f, 45.0f, angleInDegrees)) // top - right
             {
                 Debug.Log("top right");
+                neighbourXOffset = 1;
             }
             
             Debug.Log(angleInDegrees);
         }
         else
         {
+            neighbourYOffset = 1;
             if (IsInRange(-180.0f, -125.0f, angleInDegrees)) // bottom-left
             {
                 Debug.Log("Bottom left");
+                neighbourXOffset = -1;
             }
             else if (IsInRange(-125.0f, -45.0f, angleInDegrees)) // bottom
             {
@@ -221,11 +231,12 @@ public class Level : MonoBehaviour
             else if (IsInRange(-45.0f, 0f, angleInDegrees)) // bottom - right
             {
                 Debug.Log("Bottom right");
+                neighbourXOffset = 1;
             }
             
             Debug.Log(angleInDegrees);
         }
 
-        return Tuple.Create(x, y);
+        return Tuple.Create(x + neighbourXOffset, y + neighbourYOffset);
     }
 }
