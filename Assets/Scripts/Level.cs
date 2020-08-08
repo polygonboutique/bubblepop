@@ -181,6 +181,8 @@ public class Level : MonoBehaviour
 
         if (hitBall)
         {
+            var hitBallComp = hitBall.GetComponent<Ball>();
+
             {
                 Vector3 tangent = Vector3.Cross(hitInfo.normal, Vector3.forward);
 
@@ -200,10 +202,16 @@ public class Level : MonoBehaviour
                     var position = hitInfo.point;
                     Debug.DrawLine(position, position + hitInfo.normal * 200, color);
                 }
+                
+                {
+                    Color color = new Color32(255, 0, 225, 255);
+                    var position = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
+                    Debug.DrawLine(position, position + (hitInfo.point - position).normalized * 200, color);
+                }
             }
 
-            var hitBallComp = hitBall.GetComponent<Ball>();
-            if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), hitInfo.normal, out var gridX, out var gridY))
+            var centerToHitDir = (hitInfo.point - _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord())).normalized;
+            if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
                 _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(gridX, gridY);
 
