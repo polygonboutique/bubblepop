@@ -10,7 +10,7 @@ public class InGame : MonoBehaviour
 {
     public GameObject ballPrefab;
     public GameObject mainCamera;
-    
+
     private const int MAX_GRID_WIDTH = 6;
     private const int MAX_GRID_HEIGHT = 10;
 
@@ -30,7 +30,7 @@ public class InGame : MonoBehaviour
     private bool _mergeAnimationsRunning = false;
     private int _numLerpAnimationsRunning = 0;
     private LineRenderer _lineRenderer;
-    
+
     // *************************************************
     // Init and set-up
     // *************************************************
@@ -136,19 +136,18 @@ public class InGame : MonoBehaviour
 
         List<Vector3> linesToDraw = new List<Vector3>();
         linesToDraw.Add(_ballShooter.GetPosition());
-        
+
         GameObject hitBall;
         RaycastHit hitInfo;
         List<Vector3> animationPath = new List<Vector3>();
         if (!IntersectsBalls(ray, out hitBall, out hitInfo))
         {
-           
             // => max 1 reflection
             // track nearest intersection point and store "next ray" here, then after the loop we do 1 more intersection test vs balls
             for (int i = 0; i < _boundsPlanes.Length; ++i)
             {
                 Plane plane = _boundsPlanes[i];
-                
+
                 // todo: get closest intersection and use that for "next ray"
                 if (plane.Raycast(ray, out float enter))
                 {
@@ -158,7 +157,7 @@ public class InGame : MonoBehaviour
                     // add plane intersection point to path
                     animationPath.Add(hitPoint);
                     linesToDraw.Add(hitPoint);
-                    
+
                     Ray nextRay = new Ray(hitPoint, reflect);
                     if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
                     {
@@ -169,19 +168,20 @@ public class InGame : MonoBehaviour
                 }
             }
         }
-        
+
         if (hitBall)
         {
             linesToDraw.Add(hitInfo.point);
             _lineRenderer.positionCount = linesToDraw.Count;
-            for (int i = 0; i < linesToDraw.Count; ++i) {
+            for (int i = 0; i < linesToDraw.Count; ++i)
+            {
                 _lineRenderer.SetPosition(i, linesToDraw[i]);
             }
-            
+
             var hitBallComp = hitBall.GetComponent<Ball>();
             var gridPosition = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
             var centerToHitDir = (hitInfo.point - gridPosition).normalized;
-            
+
             if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
                 Vector3 nextPosition = _ballSpawner.GeneratePosition(gridX, gridY);
@@ -213,7 +213,7 @@ public class InGame : MonoBehaviour
         _ballShooter.NextBall();
         _canShoot = true;
         _canMoveRow = true;
-        
+
         // todo: advance rows
     }
 
@@ -486,22 +486,29 @@ public class InGame : MonoBehaviour
 
     private void RemoveFreeFloatingBall()
     {
+        List<Ball> ballsFloatingOnGrid = new List<Ball>();
         List<int> tilesToVisit = new List<int>();
-        
-        for (int x = 0; x < MAX_GRID_WIDTH; x++) 
+        for (int x = 0; x < MAX_GRID_WIDTH; x++)
         {
             tilesToVisit.Add(x);
+            for (int y = 0; y < MAX_GRID_HEIGHT; ++y)
+            {
+                if (CoordinatesOccupied(x, y))
+                {
+                    ballsFloatingOnGrid.Add(_grid[x, y]);
+                }
+            }
         }
 
         while (tilesToVisit.Count > 0)
         {
             int x = tilesToVisit[0];
-            
+
             if (CoordinatesOccupied(x, 0))
             {
                 List<Ball> cluster = new List<Ball>();
                 GatherClusters(x, 0, ref cluster, false);
-            
+
                 for (int i = tilesToVisit.Count - 1; i >= 1; --i)
                 {
                     Ball ball = _grid[tilesToVisit[i], 0];
@@ -510,12 +517,23 @@ public class InGame : MonoBehaviour
                         tilesToVisit.RemoveAt(i);
                     }
                 }
-                
-                // here we have clean data
-                Debug.Log("Tile left to check: " + tilesToVisit.Count);
-            }
 
+                // remove balls from deletion list, which are contained in cluster
+                foreach (Ball ballInCluster in cluster)
+                {
+                    if (ballsFloatingOnGrid.Contains(ballInCluster))
+                    {
+                        ballsFloatingOnGrid.Remove(ballInCluster);
+                    }
+                }
+            }
             tilesToVisit.RemoveAt(0);
+        }
+
+        foreach (Ball ball in ballsFloatingOnGrid)
+        {
+            RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
+            Destroy(ball.gameObject);
         }
     }
 
