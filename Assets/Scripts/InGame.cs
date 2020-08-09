@@ -116,7 +116,7 @@ public class InGame : MonoBehaviour
 
                 // Trigger animation
                 Destroy(_mergeTarget.gameObject);
-                
+
                 NextTurn();
             }
             else
@@ -150,30 +150,42 @@ public class InGame : MonoBehaviour
         List<Vector3> animationPath = new List<Vector3>();
         if (!IntersectsBalls(ray, out hitBall, out hitInfo))
         {
+            float closestDistance = Single.PositiveInfinity;
+            Plane closestPlane = _boundsPlanes[0];
+            Vector3 closestHitPoint = new Vector3();
+            bool didHitPlane = false;
+
             // => max 1 reflection
             // track nearest intersection point and store "next ray" here, then after the loop we do 1 more intersection test vs balls
             for (int i = 0; i < _boundsPlanes.Length; ++i)
             {
                 Plane plane = _boundsPlanes[i];
-
-                // todo: get closest intersection and use that for "next ray"
                 if (plane.Raycast(ray, out float enter))
                 {
+                    didHitPlane = true;
                     Vector3 hitPoint = ray.GetPoint(enter);
-                    Vector3 reflect = Vector3.Reflect(ray.direction, plane.normal);
 
-                    // add plane intersection point to path
-                    animationPath.Add(hitPoint);
-                    linesToDraw.Add(hitPoint);
-
-                    Ray nextRay = new Ray(hitPoint, reflect);
-                    if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
+                    float distance = Vector3.Distance(_ballShooter.GetPosition(), hitPoint);
+                    if (distance < closestDistance)
                     {
-                        break;
+                        closestDistance = distance;
+                        closestPlane = plane;
+                        closestHitPoint = hitPoint;
                     }
-
-                    _ballShooter.HidePreviewBall();
                 }
+            }
+
+            if (didHitPlane)
+            {
+                Vector3 reflect = Vector3.Reflect(ray.direction, closestPlane.normal);
+                
+                // add plane intersection point to path
+                animationPath.Add(closestHitPoint);
+                linesToDraw.Add(closestHitPoint);
+
+                Ray nextRay = new Ray(closestHitPoint, reflect);
+                IntersectsBalls(nextRay, out hitBall, out hitInfo);
+                _ballShooter.HidePreviewBall();
             }
         }
 
@@ -226,7 +238,7 @@ public class InGame : MonoBehaviour
     }
 
     // *************************************************
-    // Helper functions down here
+    // Helper functions
     // ************************************************* 
 
     private void SpawnBallOnGrid(int x, int y, int value)
@@ -535,6 +547,7 @@ public class InGame : MonoBehaviour
                     }
                 }
             }
+
             tilesToVisit.RemoveAt(0);
         }
 
