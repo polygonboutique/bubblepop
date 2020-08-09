@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using Plane = UnityEngine.Plane;
 using Vector3 = UnityEngine.Vector3;
 
@@ -28,6 +29,9 @@ public class Level : MonoBehaviour
     private Plane[] _boundsPlanes;
     private bool _canShoot;
     private bool _canMoveRow;
+
+    private bool _lerpAnimationsRunning = false;
+    private int _numLerpAnimationsRunning = 0;
 
     // *************************************************
     // Init and set-up
@@ -96,11 +100,18 @@ public class Level : MonoBehaviour
             return;
         }
 
+        if (_lerpAnimationsRunning && LerpAnimationsCompleted())
+        {
+            _lerpAnimationsRunning = false;
+            
+            NextTurn();
+        }
+
         if (!CanShoot())
         {
             return;
         }
-
+        
         Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseCoordsWorldSpace.z = 0;
         Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
@@ -224,6 +235,13 @@ public class Level : MonoBehaviour
                 _ballShooter.HidePreviewBall();
             }
         }
+    }
+
+    private void NextTurn()
+    {
+        _ballShooter.NextBall();
+        _canShoot = true;
+        _canMoveRow = true;
     }
 
     // *************************************************
@@ -368,6 +386,12 @@ public class Level : MonoBehaviour
         return _canShoot;
     }
 
+    private bool LerpAnimationsCompleted()
+    {
+        Assert.IsTrue(_numLerpAnimationsRunning > -1);
+        return _numLerpAnimationsRunning == 0;
+    }
+
     private void GatherClusters(int gridX, int gridY, ref List<Ball> ballCluster)
     {
         Ball activeBall = _grid[gridX, gridY];
@@ -453,12 +477,10 @@ public class Level : MonoBehaviour
         }
     }
 
-    private void TryMerge(int activeGridX, int activeGridY)
+    private void MergeBalls(int activeGridX, int activeGridY)
     {
         List<Ball> ballCluster = new List<Ball>();
         GatherClusters(activeGridX, activeGridY, ref ballCluster);
-
-        // now we have a valid cluster for the given value
 
         if (ballCluster.Count >= 2)
         {
@@ -466,25 +488,20 @@ public class Level : MonoBehaviour
             List<Vector3> path = new List<Vector3>();
             path.Add(mergeTarget.transform.position);
 
+            _numLerpAnimationsRunning = ballCluster.Count - 1;
+            _lerpAnimationsRunning = true;
+            
             for (int i = 1; i < ballCluster.Count; ++i)
             {
                 Ball merger = ballCluster[i];
                 RemoveBallFromGrid(merger.GetGridXCoord(), merger.GetGridYCoord());
                 StartCoroutine(LerpBallAnimation(merger, mergeTarget.GetGridXCoord(), mergeTarget.GetGridYCoord(), path));
             }
-
-            // 
-            // StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
-
-            // Always merge up! take the first most highest up ball to merge into. 
-
-            // check, if the other ball, can has neighbours of same value:
-            // if so, we put it into our cluster list and merge them all into the most "top-left" bubble
         }
-    }
-
-    private void MergeBalls(int activeGridX, int activeGridY, int targetGridX, int targetGridY)
-    {
+        else
+        {
+            NextTurn();
+        }
     }
 
     // *************************************************
@@ -510,12 +527,8 @@ public class Level : MonoBehaviour
         Destroy(ball.gameObject);
 
         SpawnBallOnGrid(targetGridX, targetGridY, value);
-        TryMerge(targetGridX, targetGridY);
-
-        _ballShooter.NextBall();
-        _canShoot = true;
-        _canMoveRow = true;
-
+        MergeBalls(targetGridX, targetGridY);
+        
         yield return null;
     }
 
@@ -536,6 +549,7 @@ public class Level : MonoBehaviour
 
         Destroy(ball.gameObject);
         _grid[targetGridX, targetGridY].IncreaseValue();
+        _numLerpAnimationsRunning--;
 
         yield return null;
     }

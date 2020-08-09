@@ -20,13 +20,14 @@ public class BallShooter : MonoBehaviour
 
         _currentBall = SpawnRandomBall(_currentBallSpawnPosition);
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition);
-        _previewBall = _ballSpawner.SpawnBall(BIG_NUMBER, 1);
+        _previewBall = _ballSpawner.SpawnBall(BIG_NUMBER, _currentBall.GetComponent<Ball>().GetValue());
     }
 
     public void NextBall()
     {
         _currentBall = _nextBall;
         _currentBall.transform.position = _currentBallSpawnPosition;
+        _previewBall = _ballSpawner.SpawnBall(BIG_NUMBER, _currentBall.GetComponent<Ball>().GetValue());
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition);
     }
 
