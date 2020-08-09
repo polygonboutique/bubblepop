@@ -254,7 +254,7 @@ public class Level : MonoBehaviour
         double angleInRadians = Math.Atan2(normal.y, normal.x);
         float angleInDegrees = (float) (angleInRadians / Math.PI * 180.0f);
 
-        bool isEvenRow = y % 2 == 1; // todo: name of this is wrong
+        bool isOddRow = y % 2 != 0;
         bool topHalfIntersects = angleInDegrees > 0;
         if (topHalfIntersects)
         {
@@ -265,12 +265,12 @@ public class Level : MonoBehaviour
             }
             else if (IsInRange(90.0f, 165.0f, angleInDegrees)) // top-left
             {
-                outX = x + (isEvenRow ? 0 : -1);
+                outX = x + (isOddRow ? 0 : -1);
                 outY = y - 1;
             }
             else if (IsInRange(15.0f, 90.0f, angleInDegrees)) // top - right
             {
-                outX = x + (isEvenRow ? 1 : 0);
+                outX = x + (isOddRow ? 1 : 0);
                 outY = y - 1;
             }
             else if (IsInRange(0.0f, 15.0f, angleInDegrees)) // right
@@ -288,12 +288,12 @@ public class Level : MonoBehaviour
             }
             else if (IsInRange(-165.0f, -90.0f, angleInDegrees)) // bottom-left
             {
-                outX = x + (isEvenRow ? 0 : -1);
+                outX = x + (isOddRow ? 0 : -1);
                 outY = y + 1;
             }
             else if (IsInRange(-90.0f, -15.0f, angleInDegrees)) // bottom - right
             {
-                outX = x + (isEvenRow ? 1 : 0);
+                outX = x + (isOddRow ? 1 : 0);
                 outY = y + 1;
             }
             else if (IsInRange(-15.0f, 0.0f, angleInDegrees)) // right
@@ -355,6 +355,14 @@ public class Level : MonoBehaviour
     
     private void TryMerge(int activeGridX, int activeGridY, GameObject ball)
     {
+        
+        //
+        // - if has multiple neighbours which can merge, they are moved into active grid  
+        //
+        //
+        //
+        // 
+        
         Ball ballComp = ball.GetComponent<Ball>();
 
         bool isEvenRow = activeGridY % 2 == 0;
@@ -365,36 +373,57 @@ public class Level : MonoBehaviour
         int diagonalRightX = activeGridX + (isEvenRow ? 0 : 1);
         int leftX = activeGridX - 1;
         int rightX = activeGridX + 1;
+        List<GameObject> possibleMerges = new List<GameObject>();
         
         // check top-left, top-right, right, bottom-right, bottom-left, left
-
         if (CoordinatesInRange(diagonalLeftX, topY) 
             && CoordinatesOccupied(diagonalLeftX, topY) 
             && ballComp.CanMerge(_grid[diagonalLeftX, topY]))
         {
             Debug.Log("MERGE TOP LEFT");
+            possibleMerges.Add(_grid[diagonalLeftX, topY].gameObject);
         }
-        // else if (CoordinatesInRange(diagonalRightX, topY) && ballComp.CanMerge(_grid[diagonalRightX, topY]))
-        // {
-        //     Debug.Log("MERGE TOP RIGHT");
-        // }
-        // else if (CoordinatesInRange(rightX, topY) && ballComp.CanMerge(_grid[rightX, topY]))
-        // {
-        //     Debug.Log("MERGE RIGHT");
-        // }
-        // else if (CoordinatesInRange(diagonalRightX, bottomY) && ballComp.CanMerge(_grid[diagonalRightX, bottomY]))
-        // {
-        //     Debug.Log("MERGE BOTTOM RIGHT");
-        // }
-        // else if (CoordinatesInRange(diagonalLeftX, bottomY) && ballComp.CanMerge(_grid[diagonalLeftX, bottomY]))
-        // {
-        //     Debug.Log("MERGE BOTTOM LEFT");
-        // }
-        // else if (CoordinatesInRange(leftX, bottomY) && ballComp.CanMerge(_grid[leftX, bottomY]))
-        // {
-        //     Debug.Log("MERGE LEFT");
-        // }
-        // else
+        
+        if (CoordinatesInRange(diagonalRightX, topY) 
+            && CoordinatesOccupied(diagonalRightX, topY) 
+            && ballComp.CanMerge(_grid[diagonalRightX, topY]))
+        {
+            Debug.Log("MERGE TOP RIGHT");
+            possibleMerges.Add(_grid[diagonalRightX, topY].gameObject);
+        }
+        
+        if (CoordinatesInRange(rightX, activeGridY) 
+            && CoordinatesOccupied(rightX, activeGridY) 
+            && ballComp.CanMerge(_grid[rightX, activeGridY]))
+        {
+            Debug.Log("MERGE RIGHT");
+            possibleMerges.Add(_grid[rightX, activeGridY].gameObject);
+        }
+        
+        if (CoordinatesInRange(diagonalRightX, bottomY) 
+            && CoordinatesOccupied(diagonalRightX, bottomY) 
+            && ballComp.CanMerge(_grid[diagonalRightX, bottomY]))
+        {
+            Debug.Log("MERGE BOTTOM RIGHT");
+            possibleMerges.Add(_grid[diagonalRightX, bottomY].gameObject);
+        }
+
+        if (CoordinatesInRange(diagonalLeftX, bottomY) 
+            && CoordinatesOccupied(diagonalLeftX, bottomY) 
+            && ballComp.CanMerge(_grid[diagonalLeftX, bottomY]))
+        {
+            Debug.Log("MERGE BOTTOM RIGHT");
+            possibleMerges.Add(_grid[diagonalLeftX, bottomY].gameObject);
+        }
+        
+        if (CoordinatesInRange(leftX, activeGridY) 
+            && CoordinatesOccupied(leftX, activeGridY) 
+            && ballComp.CanMerge(_grid[leftX, activeGridY]))
+        {
+            Debug.Log("MERGE BOTTOM RIGHT");
+            possibleMerges.Add(_grid[leftX, activeGridY].gameObject);
+        }
+        
         {
             _ballShooter.NextBall();
             _canShoot = true;
@@ -426,6 +455,7 @@ public class Level : MonoBehaviour
 
         // todo: switch on a flag; spawn or merge
         var value = ball.GetComponent<Ball>().GetValue();
+        Destroy(ball);
         SpawnBallOnGrid(targetGridX, targetGridY, value);
         TryMerge(targetGridX, targetGridY, ball);
         yield return null;
