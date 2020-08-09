@@ -29,9 +29,8 @@ public class InGame : MonoBehaviour
     private Ball _mergeTarget = null;
     private bool _mergeAnimationsRunning = false;
     private int _numLerpAnimationsRunning = 0;
-    
     private LineRenderer _lineRenderer;
-
+    
     // *************************************************
     // Init and set-up
     // *************************************************
@@ -39,13 +38,11 @@ public class InGame : MonoBehaviour
     void Start()
     {
         Initialize(6.0f);
+        _lineRenderer = GetComponent<LineRenderer>();
     }
 
     public void Initialize(float ballSize)
     {
-        _lineRenderer = gameObject.AddComponent<LineRenderer>();
-        _lineRenderer.useWorldSpace = true;
-        
         InitializeBallSpawner(ballPrefab, ballSize);
         InitializeBallShooter(_ballSpawner);
         SetupCamera(mainCamera);
