@@ -374,6 +374,8 @@ public class Level : MonoBehaviour
         }
         
         SpawnBallOnGrid(targetGridX, targetGridY, Ball.GenerateRandomValue());
+        // todo: call try merge after this
+        
         _ballShooter.NextBall();
         _canShoot = true;
         yield return null;
