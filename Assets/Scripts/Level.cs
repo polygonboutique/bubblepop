@@ -103,7 +103,7 @@ public class Level : MonoBehaviour
         if (_lerpAnimationsRunning && LerpAnimationsCompleted())
         {
             _lerpAnimationsRunning = false;
-            
+
             NextTurn();
         }
 
@@ -111,7 +111,7 @@ public class Level : MonoBehaviour
         {
             return;
         }
-        
+
         Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseCoordsWorldSpace.z = 0;
         Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
@@ -479,7 +479,20 @@ public class Level : MonoBehaviour
 
     private Ball DetermineMergeTarget(List<Ball> ballCluster)
     {
-        return ballCluster[0];
+        Ball mergeTarget = null;
+        float maxDist = Single.PositiveInfinity;
+
+        foreach (Ball ball in ballCluster)
+        {
+            // do manhatten distance
+            // |x1 - x2| + |y1 - y2|
+            if (Vector3.Distance(Vector3.zero, ball.gameObject.transform.position) < maxDist)
+            {
+                mergeTarget = ball;
+            }
+        }
+
+        return mergeTarget;
     }
 
     private void MergeBalls(int activeGridX, int activeGridY)
@@ -495,7 +508,7 @@ public class Level : MonoBehaviour
 
             _numLerpAnimationsRunning = ballCluster.Count - 1;
             _lerpAnimationsRunning = true;
-            
+
             foreach (Ball merger in ballCluster)
             {
                 if (mergeTarget == merger)
@@ -537,7 +550,7 @@ public class Level : MonoBehaviour
 
         SpawnBallOnGrid(targetGridX, targetGridY, value);
         MergeBalls(targetGridX, targetGridY);
-        
+
         yield return null;
     }
 

@@ -5,8 +5,8 @@ using Random = System.Random;
 
 public class Ball : MonoBehaviour
 {
-    private static int MAX_VALUE = 1024;
-    private static Color[] COLORS = new Color[(int) Mathf.Log(MAX_VALUE, 2)];
+    private static int MAX_VALUE = 2048;
+    private static Color[] COLORS = new Color[(int) Mathf.Log(MAX_VALUE, 2) + 1];
     private static Random rng = new Random(0);
 
     private int _value = 2;
@@ -25,6 +25,8 @@ public class Ball : MonoBehaviour
         COLORS[7] = new Color32(255, 26, 74, 255);
         COLORS[8] = new Color32(126, 104, 255, 255);
         COLORS[9] = new Color32(229, 58, 255, 255);
+        COLORS[10] = new Color32(64, 255, 0, 255);
+        COLORS[11] = new Color32(0, 0, 0, 255);
     }
 
     public static int GenerateCappedRandomValue()
@@ -75,13 +77,16 @@ public class Ball : MonoBehaviour
 
     public void IncreaseValue()
     {
-        _value = Math.Min(MAX_VALUE, _value << 1); // go to next pow, if not bigger than max 
+        int nextValue = _value << 1;
+        _value = Math.Min(MAX_VALUE, nextValue); // go to next pow, if not bigger than max 
         AssignColor();
     }
 
     private void AssignColor()
     {
         int index = (int) Mathf.Log(_value, 2);
+        
+        Debug.Log(index);
         gameObject.GetComponent<SpriteRenderer>().color = COLORS[index];
     }
 
