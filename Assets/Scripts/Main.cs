@@ -14,13 +14,19 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _ingame = new GameObject();
-        var ingame = _ingame.AddComponent<InGame>();
-        ingame.Initialize(ballPrefab, gameOverGroup, winScreenGroup, lineRenderer, 6);
+        Restart();
     }
 
     public void Restart()
     {
-        Debug.Log("Restart game!");
+        if (_ingame)
+        {
+            Destroy(_ingame);
+        }
+
+        _ingame = new GameObject();
+        var ingame = _ingame.AddComponent<InGame>();
+        ingame.Initialize(ballPrefab, gameOverGroup, winScreenGroup, lineRenderer, 6);
     }
+    
 }
