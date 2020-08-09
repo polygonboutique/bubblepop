@@ -32,11 +32,17 @@ public class InGame : MonoBehaviour
     private bool _mergeAnimationsRunning = false;
     private int _numLerpAnimationsRunning = 0;
 
+
+    private LineRenderer _lineRenderer;
+
     // *************************************************
     // Init and set-up
     // ************************************************* 
     public void Initialize(GameObject ballPrefab, GameObject mainCamera, float ballSize)
     {
+        _lineRenderer = gameObject.AddComponent<LineRenderer>();
+        _lineRenderer.useWorldSpace = true;
+        
         InitializeBallSpawner(ballPrefab, ballSize);
         InitializeBallShooter(_ballSpawner);
         SetupCamera(mainCamera);
@@ -129,6 +135,9 @@ public class InGame : MonoBehaviour
         Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
         Ray ray = new Ray(_ballShooter.GetPosition(), shootDirection);
 
+        List<Vector3> linesToDraw = new List<Vector3>();
+        linesToDraw.Add(_ballShooter.GetPosition());
+
         Color shootDirColor = new Color32(255, 0, 22, 255);
         Debug.DrawLine(_ballShooter.GetPosition(), _ballShooter.GetPosition() + shootDirection * 100, shootDirColor);
 
@@ -182,7 +191,7 @@ public class InGame : MonoBehaviour
 
                     // add plane intersection point to path
                     animationPath.Add(hitPoint);
-
+                    linesToDraw.Add(hitPoint);
                     Ray nextRay = new Ray(hitPoint, reflect);
                     if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
                     {
@@ -193,9 +202,15 @@ public class InGame : MonoBehaviour
                 }
             }
         }
-
+        
         if (hitBall)
         {
+            linesToDraw.Add(hitInfo.point);
+            _lineRenderer.positionCount = linesToDraw.Count;
+            for (int i = 0; i < linesToDraw.Count; ++i) {
+                _lineRenderer.SetPosition(i, linesToDraw[i]);
+            }
+            
             var hitBallComp = hitBall.GetComponent<Ball>();
 
             {
@@ -246,6 +261,10 @@ public class InGame : MonoBehaviour
             {
                 _ballShooter.HidePreviewBall();
             }
+        }
+        else
+        {
+            _lineRenderer.positionCount = 0;
         }
     }
 
@@ -529,7 +548,7 @@ public class InGame : MonoBehaviour
     IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         const float epsilon = 0.05f;
-        const float speed = 155.0f;
+        const float speed = 165.0f;
         while (path.Count > 0)
         {
             while (Vector3.Distance(ball.transform.position, path[0]) > epsilon)
@@ -554,7 +573,7 @@ public class InGame : MonoBehaviour
     IEnumerator LerpBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         float elapsed = 0;
-        float targetDuration = 0.45f; // seconds
+        float targetDuration = 0.32f; // seconds
         Vector3 initialLerpPosition = ball.transform.position;
 
         while (elapsed < targetDuration)
