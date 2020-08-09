@@ -449,7 +449,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 503272897}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2084380422}
+        m_TargetAssemblyTypeName: Main, Assembly-CSharp
+        m_MethodName: Restart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &503272897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -965,8 +977,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2084380422}
-        m_TargetAssemblyTypeName: InGame, Assembly-CSharp
-        m_MethodName: Test
+        m_TargetAssemblyTypeName: Main, Assembly-CSharp
+        m_MethodName: Restart
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1023,8 +1035,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2084380421}
-  - component: {fileID: 2084380422}
   - component: {fileID: 2084380423}
+  - component: {fileID: 2084380422}
   m_Layer: 0
   m_Name: EntryPoint
   m_TagString: Untagged
@@ -1055,7 +1067,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2084380420}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6536499180baf71458d83092821efe12, type: 3}
+  m_Script: {fileID: 11500000, guid: 61f13c003dddc4a4892e4850cccb27bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 2087443745827952823, guid: d1529d55c572ef844ac646b44218b148, type: 3}

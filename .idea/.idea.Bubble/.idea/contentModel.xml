@@ -11,6 +11,7 @@
           <e p="BallShooter.cs" t="Include" />
           <e p="BallSpawner.cs" t="Include" />
           <e p="InGame.cs" t="Include" />
+          <e p="Main.cs" t="Include" />
         </e>
       </e>
       <e p="Bubble.sln" t="IncludeFlat" />

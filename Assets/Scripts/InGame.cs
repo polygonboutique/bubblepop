@@ -8,11 +8,6 @@ using Vector3 = UnityEngine.Vector3;
 
 public class InGame : MonoBehaviour
 {
-    public GameObject ballPrefab;
-    public GameObject gameOverGroup;
-    public GameObject winScreenGroup;
-    public LineRenderer lineRenderer;
-
     private const int MAX_GRID_WIDTH = 6;
     private const int MAX_GRID_HEIGHT = 10;
 
@@ -32,6 +27,11 @@ public class InGame : MonoBehaviour
     private bool _mergeAnimationsRunning = false;
     private int _numLerpAnimationsRunning = 0;
 
+    private GameObject _ballPrefab;
+    private GameObject _gameOverGroup;
+    private GameObject _winScreenGroup;
+    private LineRenderer _lineRenderer;
+
     // *************************************************
     // Init and set-up
     // *************************************************
@@ -41,16 +41,17 @@ public class InGame : MonoBehaviour
         Debug.Log("Button pressed");
     }
 
-    void Start()
+    public void Initialize(GameObject ballPrefab, GameObject gameOverGroup,
+        GameObject winScreenGroup, LineRenderer lineRenderer, float ballSize)
     {
-        Initialize(6.0f);
-    }
-
-    public void Initialize(float ballSize)
-    {
+        _ballPrefab = ballPrefab;
+        _gameOverGroup = gameOverGroup;
+        _winScreenGroup = winScreenGroup;
+        _lineRenderer = lineRenderer;
+        
         gameOverGroup.SetActive(false);
         winScreenGroup.SetActive(false);
-        
+
         InitializeBallSpawner(ballPrefab, ballSize);
         InitializeBallShooter(_ballSpawner);
         SetupCamera();
@@ -109,12 +110,12 @@ public class InGame : MonoBehaviour
     {
         if (ReachedGameOverState())
         {
-            gameOverGroup.SetActive(true);
+            _gameOverGroup.SetActive(true);
             return;
         }
         else if (ReachedWinState())
         {
-            winScreenGroup.SetActive(true);
+            _winScreenGroup.SetActive(true);
             return;
         }
 
@@ -205,10 +206,10 @@ public class InGame : MonoBehaviour
         if (hitBall)
         {
             linesToDraw.Add(hitInfo.point);
-            lineRenderer.positionCount = linesToDraw.Count;
+            _lineRenderer.positionCount = linesToDraw.Count;
             for (int i = 0; i < linesToDraw.Count; ++i)
             {
-                lineRenderer.SetPosition(i, linesToDraw[i]);
+                _lineRenderer.SetPosition(i, linesToDraw[i]);
             }
 
             var hitBallComp = hitBall.GetComponent<Ball>();
@@ -237,7 +238,7 @@ public class InGame : MonoBehaviour
         }
         else
         {
-            lineRenderer.positionCount = 0;
+            _lineRenderer.positionCount = 0;
         }
     }
 
