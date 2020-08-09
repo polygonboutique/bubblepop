@@ -10,6 +10,8 @@ public class InGame : MonoBehaviour
 {
     public GameObject ballPrefab;
     public GameObject mainCamera;
+    public GameObject gameOverGroup;
+    public GameObject winScreenGroup;
 
     private const int MAX_GRID_WIDTH = 6;
     private const int MAX_GRID_HEIGHT = 10;
@@ -35,6 +37,11 @@ public class InGame : MonoBehaviour
     // Init and set-up
     // *************************************************
 
+    public void Test()
+    {
+        Debug.Log("Button pressed");
+    }
+
     void Start()
     {
         Initialize(6.0f);
@@ -43,6 +50,9 @@ public class InGame : MonoBehaviour
 
     public void Initialize(float ballSize)
     {
+        gameOverGroup.SetActive(false);
+        winScreenGroup.SetActive(false);
+        
         InitializeBallSpawner(ballPrefab, ballSize);
         InitializeBallShooter(_ballSpawner);
         SetupCamera(mainCamera);
@@ -101,12 +111,13 @@ public class InGame : MonoBehaviour
     {
         if (ReachedGameOverState())
         {
-            Debug.Log("Game Over!");
+            
+            gameOverGroup.SetActive(true);
             return;
         }
         else if (ReachedWinState())
         {
-            Debug.Log("You won!");
+            winScreenGroup.SetActive(true);
             return;
         }
 
