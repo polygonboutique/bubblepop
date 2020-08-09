@@ -96,6 +96,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d43433c75b5fa5d4aa3c8355e0dc9e54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _sprites:
+  - {fileID: 21300000, guid: c02347f19456462478b22d7908373a4b, type: 3}
+  - {fileID: 21300000, guid: 34819495126b88a45b83dc800a1e0f87, type: 3}
+  - {fileID: 21300000, guid: 13eef17edadf3044c85a6b8202013eb9, type: 3}
+  - {fileID: 21300000, guid: d2073b6907ed10541bffcaef68955ac9, type: 3}
+  - {fileID: 21300000, guid: 594f5b2a1269c79499fd6624bb6f3a8e, type: 3}
+  - {fileID: 21300000, guid: c9fbbc43d44c7a549bcc6c48f1dabfd3, type: 3}
+  - {fileID: 21300000, guid: 4f7d55ed1e8d7234d88bd211f0b6e3b5, type: 3}
+  - {fileID: 21300000, guid: 3002ac1c91c946942b7689edac0fd499, type: 3}
+  - {fileID: 21300000, guid: 285bb3fc7778a1c46b6b0446d26fb225, type: 3}
+  - {fileID: 21300000, guid: b96f2364a507930479fcf5e86a4dfda8, type: 3}
+  - {fileID: 21300000, guid: 276552e6a47ba0f4392a80664e2b9341, type: 3}
+  - {fileID: 21300000, guid: c265531f602e63242ba09a2fa0ac63ea, type: 3}
 --- !u!135 &8342306059897224515
 SphereCollider:
   m_ObjectHideFlags: 0

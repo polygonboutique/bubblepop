@@ -6,28 +6,13 @@ using Random = System.Random;
 public class Ball : MonoBehaviour
 {
     private static int MAX_VALUE = 2048;
-    private static Color[] COLORS = new Color[(int) Mathf.Log(MAX_VALUE, 2) + 1];
     private static Random rng = new Random(0);
 
     private int _value = 2;
     private int _gridX, _gridY;
 
-    static Ball()
-    {
-        COLORS[0] = new Color32(0, 0, 0, 255);
-        COLORS[1] = new Color32(255, 97, 199, 255);
-        COLORS[2] = new Color32(58, 248, 255, 255);
-        COLORS[3] = new Color32(255, 255, 119, 255);
-        COLORS[4] = new Color32(143, 61, 255, 255);
-        COLORS[5] = new Color32(125, 255, 167, 255);
-        COLORS[6] = new Color32(255, 154, 43, 255);
-        COLORS[7] = new Color32(255, 26, 74, 255);
-        COLORS[8] = new Color32(126, 104, 255, 255);
-        COLORS[9] = new Color32(229, 58, 255, 255);
-        COLORS[10] = new Color32(64, 255, 0, 255);
-        COLORS[11] = new Color32(0, 0, 0, 255);
-    }
-
+    public Sprite[] _sprites;
+    
     public static int GenerateCappedRandomValue()
     {
         int maxExp = (int) Mathf.Log(Ball.MAX_VALUE, 2) / 2;
@@ -61,21 +46,20 @@ public class Ball : MonoBehaviour
         Assert.IsTrue(IsPowerOfTwo((ulong) val));
         _value = val;
 
-        AssignColor();
+        AssignSprite();
     }
 
     public void IncreaseValue()
     {
         _value = Math.Min(MAX_VALUE, _value << 1); // go to next pow, if not bigger than max 
-        AssignColor();
+        AssignSprite();
     }
 
-    private void AssignColor()
+    private void AssignSprite()
     {
+        // int maxIndex = (int) Mathf.Log(MAX_VALUE, 2) + 1;
         int index = (int) Mathf.Log(_value, 2);
-        
-        Debug.Log(index);
-        gameObject.GetComponent<SpriteRenderer>().color = COLORS[index];
+        gameObject.GetComponent<SpriteRenderer>().sprite = _sprites[index];
     }
 
     public bool CanMerge(Ball ball)
