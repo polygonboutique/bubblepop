@@ -89,4 +89,9 @@ public class Ball : MonoBehaviour
     {
         return _value == ball._value;
     }
+
+    public int GetValue()
+    {
+        return _value;
+    }
 }

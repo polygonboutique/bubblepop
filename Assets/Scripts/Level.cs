@@ -207,7 +207,7 @@ public class Level : MonoBehaviour
                 {
                     _canShoot = false;
                     _ballShooter.HidePreviewBall();
-                    StartCoroutine(ShootBallAnimation(_ballShooter.GetCurrentBall(), gridX, gridY, animationPath));
+                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall(), gridX, gridY, animationPath));
                 }
             }
             else
@@ -254,7 +254,7 @@ public class Level : MonoBehaviour
         double angleInRadians = Math.Atan2(normal.y, normal.x);
         float angleInDegrees = (float) (angleInRadians / Math.PI * 180.0f);
 
-        bool isEvenRow = y % 2 == 1;
+        bool isEvenRow = y % 2 == 1; // todo: name of this is wrong
         bool topHalfIntersects = angleInDegrees > 0;
         if (topHalfIntersects)
         {
@@ -353,11 +353,62 @@ public class Level : MonoBehaviour
         return _canShoot;
     }
     
+    private void TryMerge(int activeGridX, int activeGridY, GameObject ball)
+    {
+        Ball ballComp = ball.GetComponent<Ball>();
+
+        bool isEvenRow = activeGridY % 2 == 0;
+        
+        int topY = activeGridY - 1;
+        int bottomY = activeGridY + 1;
+        int diagonalLeftX = activeGridX + (isEvenRow ? -1 : 0);
+        int diagonalRightX = activeGridX + (isEvenRow ? 0 : 1);
+        int leftX = activeGridX - 1;
+        int rightX = activeGridX + 1;
+        
+        // check top-left, top-right, right, bottom-right, bottom-left, left
+
+        if (CoordinatesInRange(diagonalLeftX, topY) 
+            && CoordinatesOccupied(diagonalLeftX, topY) 
+            && ballComp.CanMerge(_grid[diagonalLeftX, topY]))
+        {
+            Debug.Log("MERGE TOP LEFT");
+        }
+        // else if (CoordinatesInRange(diagonalRightX, topY) && ballComp.CanMerge(_grid[diagonalRightX, topY]))
+        // {
+        //     Debug.Log("MERGE TOP RIGHT");
+        // }
+        // else if (CoordinatesInRange(rightX, topY) && ballComp.CanMerge(_grid[rightX, topY]))
+        // {
+        //     Debug.Log("MERGE RIGHT");
+        // }
+        // else if (CoordinatesInRange(diagonalRightX, bottomY) && ballComp.CanMerge(_grid[diagonalRightX, bottomY]))
+        // {
+        //     Debug.Log("MERGE BOTTOM RIGHT");
+        // }
+        // else if (CoordinatesInRange(diagonalLeftX, bottomY) && ballComp.CanMerge(_grid[diagonalLeftX, bottomY]))
+        // {
+        //     Debug.Log("MERGE BOTTOM LEFT");
+        // }
+        // else if (CoordinatesInRange(leftX, bottomY) && ballComp.CanMerge(_grid[leftX, bottomY]))
+        // {
+        //     Debug.Log("MERGE LEFT");
+        // }
+        // else
+        {
+            _ballShooter.NextBall();
+            _canShoot = true;
+        }
+    }
+
+    private void MergeBalls(int activeGridX, int activeGridY, int targetGridX, int targetGridY)
+    {
+    }
+
     // *************************************************
     // Animation functions
     // *************************************************
-
-    IEnumerator ShootBallAnimation(GameObject ball, int targetGridX, int targetGridY, List<Vector3> path)
+    IEnumerator MoveBallAnimation(GameObject ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         const float epsilon = 0.05f;
         const float speed = 100.0f;
@@ -366,18 +417,17 @@ public class Level : MonoBehaviour
             while (Vector3.Distance(ball.transform.position, path[0]) > epsilon)
             {
                 ball.transform.position = Vector3.MoveTowards(ball.transform.position, path[0], Time.deltaTime * speed);
-                yield return null; 
+                yield return null;
             }
-            
+
             path.RemoveAt(0);
             yield return null;
         }
-        
-        SpawnBallOnGrid(targetGridX, targetGridY, Ball.GenerateRandomValue());
-        // todo: call try merge after this
-        
-        _ballShooter.NextBall();
-        _canShoot = true;
+
+        // todo: switch on a flag; spawn or merge
+        var value = ball.GetComponent<Ball>().GetValue();
+        SpawnBallOnGrid(targetGridX, targetGridY, value);
+        TryMerge(targetGridX, targetGridY, ball);
         yield return null;
     }
 }
