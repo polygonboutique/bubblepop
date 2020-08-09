@@ -14,7 +14,7 @@ using Vector3 = UnityEngine.Vector3;
 
 public enum ActionAfterMove
 {
-    Nothing,
+    MoveGrid,
     Spawn,
     Merge
 }
@@ -34,6 +34,7 @@ public class Level : MonoBehaviour
 
     private Plane[] _boundsPlanes;
     private bool _canShoot;
+    private bool _canMoveRow;
 
     // *************************************************
     // Init and set-up
@@ -62,6 +63,7 @@ public class Level : MonoBehaviour
         _boundsPlanes[2] = new Plane(Vector3.down, _ballSpawner.GetBallRadius() * 2); // up
 
         _canShoot = true;
+        _canMoveRow = false;
     }
 
     private void SetupCamera(GameObject mainCamera)
@@ -244,6 +246,12 @@ public class Level : MonoBehaviour
     private void RemoveBallFromGrid(int x, int y)
     {
         _grid[x, y] = null;
+    }
+    
+    private void AssignBallToGrid(Ball ball, int targetGridX, int targetGridY)
+    {
+        _grid[targetGridX, targetGridY] = ball;
+        ball.SetGridCoords(targetGridX, targetGridY);
     }
 
     private bool IsInRange(float min, float max, float value)
@@ -433,15 +441,17 @@ public class Level : MonoBehaviour
             
             RemoveBallFromGrid(activeGridX, activeGridY);
             StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
+         
+            // Always merge up! take the first most highest up ball to merge into. 
             
-            
-            // check, if the other ball, can has neighbours of same value: if so, then we merge into that ball
-            // if it does not have neighbours, then it merges into us
+            // check, if the other ball, can has neighbours of same value:
+            // if so, we put it into our cluster list and merge them all into the most "top-left" bubble
         }
         else if (possibleMerges.Count == 0)
         {
             _ballShooter.NextBall();
             _canShoot = true;
+            _canMoveRow = true;
         }
     }
 
@@ -473,7 +483,10 @@ public class Level : MonoBehaviour
 
         switch (actionAfterMove)
         {
-            case ActionAfterMove.Nothing:
+            case ActionAfterMove.MoveGrid:
+                // tell ball to move to given grid coords
+                RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
+                AssignBallToGrid(ball, targetGridX, targetGridY);
                 break;
             case ActionAfterMove.Spawn:
                 SpawnBallOnGrid(targetGridX, targetGridY, value);
