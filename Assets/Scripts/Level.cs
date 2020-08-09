@@ -30,7 +30,8 @@ public class Level : MonoBehaviour
     private bool _canShoot;
     private bool _canMoveRow;
 
-    private bool _lerpAnimationsRunning = false;
+    private Ball _mergeTarget = null;
+    private bool _mergeAnimationsRunning = false;
     private int _numLerpAnimationsRunning = 0;
 
     // *************************************************
@@ -100,10 +101,23 @@ public class Level : MonoBehaviour
             return;
         }
 
-        if (_lerpAnimationsRunning && LerpAnimationsCompleted())
+        if (_mergeAnimationsRunning && LerpAnimationsCompleted())
         {
-            _lerpAnimationsRunning = false;
+            _mergeAnimationsRunning = false;
 
+            if (_mergeTarget.ReachedMaxValue())
+            {
+                RemoveBallFromGrid(_mergeTarget.GetGridXCoord(), _mergeTarget.GetGridYCoord());
+                Destroy(_mergeTarget.gameObject);
+
+                // Trigger explosion + animation
+                // remove surrounding neighbours
+            }
+
+            // Check balls are supposed to fall down =>
+            // loop through balls and find clusters, which can be removed, because they are not connected anymore
+
+            _mergeTarget = null;
             NextTurn();
         }
 
@@ -256,12 +270,6 @@ public class Level : MonoBehaviour
     private void RemoveBallFromGrid(int x, int y)
     {
         _grid[x, y] = null;
-    }
-
-    private void AssignBallToGrid(Ball ball, int targetGridX, int targetGridY)
-    {
-        _grid[targetGridX, targetGridY] = ball;
-        ball.SetGridCoords(targetGridX, targetGridY);
     }
 
     private bool IsInRange(float min, float max, float value)
@@ -480,14 +488,16 @@ public class Level : MonoBehaviour
     private Ball DetermineMergeTarget(List<Ball> ballCluster)
     {
         Ball mergeTarget = null;
-        float maxDist = Single.PositiveInfinity;
+        int maxDist = Int32.MaxValue;
 
         foreach (Ball ball in ballCluster)
         {
             // do manhatten distance
             // |x1 - x2| + |y1 - y2|
-            if (Vector3.Distance(Vector3.zero, ball.gameObject.transform.position) < maxDist)
+            int distance = ball.GetGridXCoord() + ball.GetGridYCoord();
+            if (distance < maxDist)
             {
+                maxDist = distance;
                 mergeTarget = ball;
             }
         }
@@ -507,7 +517,8 @@ public class Level : MonoBehaviour
             path.Add(mergeTarget.transform.position);
 
             _numLerpAnimationsRunning = ballCluster.Count - 1;
-            _lerpAnimationsRunning = true;
+            _mergeAnimationsRunning = true;
+            _mergeTarget = mergeTarget;
 
             foreach (Ball merger in ballCluster)
             {
@@ -532,7 +543,7 @@ public class Level : MonoBehaviour
     IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         const float epsilon = 0.05f;
-        const float speed = 100.0f;
+        const float speed = 155.0f;
         while (path.Count > 0)
         {
             while (Vector3.Distance(ball.transform.position, path[0]) > epsilon)
@@ -557,7 +568,7 @@ public class Level : MonoBehaviour
     IEnumerator LerpBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         float elapsed = 0;
-        float targetDuration = 0.65f; // seconds
+        float targetDuration = 0.45f; // seconds
         Vector3 initialLerpPosition = ball.transform.position;
 
         while (elapsed < targetDuration)

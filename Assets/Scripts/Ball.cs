@@ -10,7 +10,6 @@ public class Ball : MonoBehaviour
     private static Random rng = new Random(0);
 
     private int _value = 2;
-    private bool _active = false;
     private int _gridX, _gridY;
 
     static Ball()
@@ -52,16 +51,6 @@ public class Ball : MonoBehaviour
         return _gridY;
     }
 
-    public void SetActive()
-    {
-        _active = true;
-    }
-
-    public bool IsActive()
-    {
-        return _active;
-    }
-
     bool IsPowerOfTwo(ulong x)
     {
         return (x != 0) && ((x & (x - 1)) == 0);
@@ -77,8 +66,7 @@ public class Ball : MonoBehaviour
 
     public void IncreaseValue()
     {
-        int nextValue = _value << 1;
-        _value = Math.Min(MAX_VALUE, nextValue); // go to next pow, if not bigger than max 
+        _value = Math.Min(MAX_VALUE, _value << 1); // go to next pow, if not bigger than max 
         AssignColor();
     }
 
@@ -98,5 +86,10 @@ public class Ball : MonoBehaviour
     public int GetValue()
     {
         return _value;
+    }
+
+    public bool ReachedMaxValue()
+    {
+        return _value == MAX_VALUE;
     }
 }
