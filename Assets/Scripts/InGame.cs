@@ -70,8 +70,7 @@ public class InGame : MonoBehaviour
 
     private void SetupCamera(GameObject mainCamera)
     {
-        var position = _ballSpawner.GeneratePosition(MAX_GRID_WIDTH / 2, MAX_GRID_HEIGHT / 2 + 1);
-        mainCamera.transform.position = position + new Vector3(0, 0, -10);
+        mainCamera.transform.position = _ballShooter.GetPosition() + new Vector3(0, 25, -10);
     }
 
     private void InitializeBallSpawner(GameObject ballPrefab, float ballScale)
@@ -85,7 +84,8 @@ public class InGame : MonoBehaviour
     {
         int widthIndex = MAX_GRID_WIDTH / 2;
 
-        Vector3 currentBallPosition = _ballSpawner.GeneratePosition(widthIndex, MAX_GRID_HEIGHT);
+        Vector3 currentBallPosition = _ballSpawner.GeneratePosition(widthIndex, MAX_GRID_HEIGHT)
+                                      + new Vector3(-_ballSpawner.GetBallRadius() / 2, 0, 0);
         Vector3 nextBallPosition = _ballSpawner.GeneratePosition(widthIndex - 2, MAX_GRID_HEIGHT + 1);
 
         _ballShooterGo = new GameObject();
@@ -107,7 +107,7 @@ public class InGame : MonoBehaviour
         else if (ReachedWinState())
         {
             Debug.Log("You won!");
-            return;   
+            return;
         }
 
         if (_mergeAnimationsRunning && LerpAnimationsCompleted())
@@ -385,7 +385,7 @@ public class InGame : MonoBehaviour
                 }
             }
         }
-        
+
         return true;
     }
 
