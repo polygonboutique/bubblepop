@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Plane = UnityEngine.Plane;
 using Vector3 = UnityEngine.Vector3;
@@ -24,6 +25,7 @@ public class Level : MonoBehaviour
     private BallShooter _ballShooter;
 
     private Plane[] _boundsPlanes;
+    private bool _canShoot;
 
     // *************************************************
     // Init and set-up
@@ -49,6 +51,8 @@ public class Level : MonoBehaviour
         _boundsPlanes[0] = new Plane(Vector3.right, 0.0f); // left
         _boundsPlanes[1] = new Plane(Vector3.left, _ballSpawner.GeneratePosition(MAX_GRID_WIDTH, 0).magnitude
                                                    - _ballSpawner.GetBallRadius()); // right
+
+        _canShoot = false;
     }
 
     private void SetupCamera(GameObject mainCamera)
@@ -85,6 +89,12 @@ public class Level : MonoBehaviour
         if (ReachedGameOverState())
         {
             Debug.Log("Game Over!");
+            return;
+        }
+
+        if (!CanShoot())
+        {
+            return;
         }
 
         Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -97,6 +107,7 @@ public class Level : MonoBehaviour
 
         GameObject hitBall;
         RaycastHit hitInfo;
+        List<Vector3> animationPath = new List<Vector3>();
         if (!IntersectsBalls(ray, out hitBall, out hitInfo))
         {
             // Hit planes
@@ -138,12 +149,11 @@ public class Level : MonoBehaviour
                         }
                     }
 
+                    // add plane intersection point to path
+                    animationPath.Add(hitPoint);
 
                     Ray nextRay = new Ray(hitPoint, reflect);
-                    if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
-                    {
-                        Debug.Log(hitBall);
-                    }
+                    IntersectsBalls(nextRay, out hitBall, out hitInfo);
                 }
             }
         }
@@ -183,18 +193,23 @@ public class Level : MonoBehaviour
             var centerToHitDir = (hitInfo.point - gridPosition).normalized;
             if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
-                _ballShooter.ShowPreviewBall(_ballSpawner.GeneratePosition(gridX, gridY));
+                Vector3 nextPosition = _ballSpawner.GeneratePosition(gridX, gridY);
+                _ballShooter.ShowPreviewBall(nextPosition);
 
-                // todo: create list of points we need to visit
-                // todo: visit path; end of path => try merge
+                // add next ball position to path
+                animationPath.Add(nextPosition);
 
                 if (Input.GetButtonDown("Fire1"))
                 {
-                    _ballShooter.ShootBall(shootDirection); // kick off tween animation
-                    _ballShooter.ReloadBall();
+                    _canShoot = false;
+                    _ballShooter.HidePreviewBall();
+                    // todo: start visiting path!
 
-                    // todo: execture this, when tween is done. 
+
+                    // todo: execute this, when tween is done. 
                     SpawnBallOnGrid(gridX, gridY, Ball.GenerateRandomValue());
+                    _ballShooter.NextBall();
+                    _canShoot = true;
                 }
             }
             else
@@ -333,5 +348,10 @@ public class Level : MonoBehaviour
         return (CoordinatesInRange(centerXIndex, lastYIndex) && _grid[centerXIndex, lastYIndex] != null)
                || (CoordinatesInRange(centerXIndex - 1, lastYIndex) && _grid[centerXIndex - 1, lastYIndex] != null)
                || (CoordinatesInRange(centerXIndex + 1, lastYIndex) && _grid[centerXIndex + 1, lastYIndex] != null);
+    }
+
+    private bool CanShoot()
+    {
+        return _canShoot;
     }
 }

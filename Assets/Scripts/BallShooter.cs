@@ -23,12 +23,7 @@ public class BallShooter : MonoBehaviour
         _previewBall = SpawnRandomBall(BIG_NUMBER);
     }
 
-    public void ShootBall(Vector2 direction)
-    {
-        // trigger ball to move
-    }
-
-    public void ReloadBall()
+    public void NextBall()
     {
         _currentBall = _nextBall;
         _currentBall.transform.position = _currentBallSpawnPosition;
