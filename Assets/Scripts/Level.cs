@@ -448,73 +448,14 @@ public class InGame : MonoBehaviour
     private void GatherClusters(int gridX, int gridY, ref List<Ball> ballCluster)
     {
         Ball activeBall = _grid[gridX, gridY];
-        bool isEvenRow = gridY % 2 == 0;
+        List<Ball> neighbours = GatherNeighboursBalls(gridX, gridY);
 
-        int topY = gridY - 1;
-        int bottomY = gridY + 1;
-        int diagonalLeftX = gridX + (isEvenRow ? -1 : 0);
-        int diagonalRightX = gridX + (isEvenRow ? 0 : 1);
-        int leftX = gridX - 1;
-        int rightX = gridX + 1;
-
-        // check top-left, top-right, right, bottom-right, bottom-left, left
-        if (CoordinatesInRange(diagonalLeftX, topY) && CoordinatesOccupied(diagonalLeftX, topY))
+        foreach (Ball neighbour in neighbours) 
         {
-            Ball ball = _grid[diagonalLeftX, topY];
-            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            if (activeBall.CanMerge(neighbour) && !ballCluster.Contains(neighbour))
             {
-                ballCluster.Add(_grid[diagonalLeftX, topY]);
-                GatherClusters(diagonalLeftX, topY, ref ballCluster);
-            }
-        }
-
-        if (CoordinatesInRange(diagonalRightX, topY) && CoordinatesOccupied(diagonalRightX, topY))
-        {
-            Ball ball = _grid[diagonalRightX, topY];
-            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
-            {
-                ballCluster.Add(_grid[diagonalRightX, topY]);
-                GatherClusters(diagonalRightX, topY, ref ballCluster);
-            }
-        }
-
-        if (CoordinatesInRange(rightX, gridY) && CoordinatesOccupied(rightX, gridY))
-        {
-            Ball ball = _grid[rightX, gridY];
-            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
-            {
-                ballCluster.Add(_grid[rightX, gridY]);
-                GatherClusters(rightX, gridY, ref ballCluster);
-            }
-        }
-
-        if (CoordinatesInRange(diagonalRightX, bottomY) && CoordinatesOccupied(diagonalRightX, bottomY))
-        {
-            Ball ball = _grid[diagonalRightX, bottomY];
-            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
-            {
-                ballCluster.Add(_grid[diagonalRightX, bottomY]);
-                GatherClusters(diagonalRightX, bottomY, ref ballCluster);
-            }
-        }
-
-        if (CoordinatesInRange(diagonalLeftX, bottomY) && CoordinatesOccupied(diagonalLeftX, bottomY))
-        {
-            Ball ball = _grid[diagonalLeftX, bottomY];
-            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
-            {
-                ballCluster.Add(_grid[diagonalLeftX, bottomY]);
-                GatherClusters(diagonalLeftX, bottomY, ref ballCluster);
-            }
-        }
-
-        if (CoordinatesInRange(leftX, gridY) && CoordinatesOccupied(leftX, gridY))
-        {
-            Ball ball = _grid[leftX, gridY];
-            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
-            {
-                ballCluster.Add(_grid[leftX, gridY]);
-                GatherClusters(leftX, gridY, ref ballCluster);
+                ballCluster.Add(neighbour);
+                GatherClusters(neighbour.GetGridXCoord(), neighbour.GetGridYCoord(), ref ballCluster);
             }
         }
     }
