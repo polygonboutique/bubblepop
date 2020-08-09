@@ -423,8 +423,7 @@ public class Level : MonoBehaviour
             Ball otherBall = possibleMerges[0];
             List<Vector3> path = new List<Vector3>();
             path.Add(otherBall.transform.position);
-           
-            Debug.Log("MERGE CALL");
+            
             RemoveBallFromGrid(activeGridX, activeGridY);
             StartCoroutine(MoveBallAnimation(ball, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
         }
@@ -459,7 +458,7 @@ public class Level : MonoBehaviour
         }
 
         var value = ball.GetValue();
-        Destroy(ball.gameObject); // todo: destroy from grid
+        Destroy(ball.gameObject);
 
         switch (actionAfterMove)
         {
@@ -470,6 +469,7 @@ public class Level : MonoBehaviour
                 TryMerge(targetGridX, targetGridY);
                 break;
             case ActionAfterMove.Merge:
+                _grid[targetGridX, targetGridY].IncreaseValue();
                 TryMerge(targetGridX, targetGridY);
                 break;
             default:
