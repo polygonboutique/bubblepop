@@ -117,11 +117,19 @@ public class InGame : MonoBehaviour
                 // Trigger animation
                 Destroy(_mergeTarget.gameObject);
             }
+            else
+            {
+                _ballShooter.NextBall();
+                MergeBalls(_mergeTarget.GetGridXCoord(), _mergeTarget.GetGridYCoord());
+                _mergeAnimationsRunning = !LerpAnimationsCompleted();
+            }
 
-            RemoveFreeFloatingBall();
-
-            _mergeTarget = null;
-            NextTurn();
+            if (!_mergeAnimationsRunning)
+            {
+                RemoveFreeFloatingBall();
+                _mergeTarget = null;
+                NextTurn();
+            }
         }
 
         if (!CanShoot())
