@@ -515,6 +515,12 @@ public class InGame : MonoBehaviour
     private void TriggerExplosion(int gridX, int gridY)
     {
         // remove surrounding neighbours
+        List<Ball> neighbours = GatherNeighboursBalls(gridX, gridY);
+        foreach (Ball ball in neighbours)
+        {
+            RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
+            Destroy(ball.gameObject);
+        }
     }
 
     // *************************************************
