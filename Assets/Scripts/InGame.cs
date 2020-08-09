@@ -8,6 +8,9 @@ using Vector3 = UnityEngine.Vector3;
 
 public class InGame : MonoBehaviour
 {
+    public GameObject ballPrefab;
+    public GameObject mainCamera;
+    
     private const int MAX_GRID_WIDTH = 6;
     private const int MAX_GRID_HEIGHT = 10;
 
@@ -26,14 +29,19 @@ public class InGame : MonoBehaviour
     private Ball _mergeTarget = null;
     private bool _mergeAnimationsRunning = false;
     private int _numLerpAnimationsRunning = 0;
-
-
+    
     private LineRenderer _lineRenderer;
 
     // *************************************************
     // Init and set-up
-    // ************************************************* 
-    public void Initialize(GameObject ballPrefab, GameObject mainCamera, float ballSize)
+    // *************************************************
+
+    void Start()
+    {
+        Initialize(6.0f);
+    }
+
+    public void Initialize(float ballSize)
     {
         _lineRenderer = gameObject.AddComponent<LineRenderer>();
         _lineRenderer.useWorldSpace = true;

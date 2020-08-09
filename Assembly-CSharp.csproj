@@ -51,10 +51,9 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BallSpawner.cs" />
-     <Compile Include="Assets\Scripts\Main.cs" />
+     <Compile Include="Assets\Scripts\InGame.cs" />
      <Compile Include="Assets\Scripts\Ball.cs" />
      <Compile Include="Assets\Scripts\BallShooter.cs" />
-     <Compile Include="Assets\Scripts\InGame.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>D:/Code/Unity/Bubble/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
