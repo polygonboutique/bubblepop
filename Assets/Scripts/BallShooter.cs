@@ -2,13 +2,16 @@
 
 public class BallShooter : MonoBehaviour
 {
+    private static Vector3 BIG_NUMBER = new Vector3(10000.0f, 10000.0f, 10000.0f);
+    
     private BallSpawner _ballSpawner;
     private Vector3 _currentBallSpawnPosition;
     private Vector3 _nextBallSpawnPosition;
 
+    private GameObject _previewBall;
     private GameObject _currentBall;
     private GameObject _nextBall;
-    
+
     public void Initialize(BallSpawner ballSpawner, Vector3 currentBallSpawnPosition, Vector3 nextBallSpawnPosition)
     {
         _ballSpawner = ballSpawner;
@@ -17,6 +20,7 @@ public class BallShooter : MonoBehaviour
 
         _currentBall = SpawnRandomBall(_currentBallSpawnPosition);
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition);
+        _previewBall = SpawnRandomBall(BIG_NUMBER);
     }
 
     public void ShootBall(Vector2 direction)
@@ -36,9 +40,14 @@ public class BallShooter : MonoBehaviour
         return _currentBallSpawnPosition;
     }
 
-    public GameObject GetCurrentBall()
+    public void ShowPreviewBall(Vector3 position)
     {
-        return _currentBall.gameObject;
+        _previewBall.transform.position = position;
+    }
+
+    public void HidePreviewBall()
+    {
+        ShowPreviewBall(BIG_NUMBER);
     }
 
     private GameObject SpawnRandomBall(Vector3 position)

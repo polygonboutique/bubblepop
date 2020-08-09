@@ -25,6 +25,9 @@ public class Level : MonoBehaviour
 
     private Plane[] _boundsPlanes;
 
+    // *************************************************
+    // Init and set-up
+    // ************************************************* 
     public void Initialize(GameObject ballPrefab, GameObject mainCamera, float ballSize)
     {
         InitializeBallSpawner(ballPrefab, ballSize);
@@ -73,56 +76,9 @@ public class Level : MonoBehaviour
         _ballShooter.Initialize(ballSpawner, currentBallPosition, nextBallPosition);
     }
 
-    private void SpawnBallOnGrid(int x, int y, int value)
-    {
-        _grid[x, y] = _ballSpawner.SpawnBallOnGrid(x, y, value).GetComponent<Ball>();
-    }
-
-    private void DestroyBallOnGrid(int x, int y)
-    {
-        Destroy(_grid[x, y].gameObject);
-    }
-
-    private bool IntersectsBalls(Ray ray, out GameObject outGameObject, out RaycastHit hitInfo)
-    {
-        float closestDistance = Single.PositiveInfinity;
-        bool found = false;
-        outGameObject = null;
-        hitInfo = new RaycastHit();
-
-        for (int y = 0; y < MAX_GRID_HEIGHT; ++y)
-        {
-            for (int x = 0; x < MAX_GRID_WIDTH; ++x)
-            {
-                if (!_grid[x, y])
-                {
-                    continue;
-                }
-
-                GameObject go = _grid[x, y].gameObject;
-                if (go.GetComponent<Collider>().Raycast(ray, out hitInfo, 1000.0f))
-                {
-                    if (hitInfo.distance < closestDistance)
-                    {
-                        closestDistance = hitInfo.distance;
-                        outGameObject = go;
-                        found = true;
-                    }
-                }
-            }
-        }
-
-        return found;
-    }
-
-    private bool ReachedGameOverState()
-    {
-        int centerXIndex = MAX_GRID_WIDTH / 2;
-        int lastYIndex = MAX_GRID_HEIGHT - 1;
-        return (CoordinatesInRange(centerXIndex, lastYIndex) && _grid[centerXIndex, lastYIndex] != null)
-               || (CoordinatesInRange(centerXIndex - 1, lastYIndex) && _grid[centerXIndex - 1, lastYIndex] != null)
-               || (CoordinatesInRange(centerXIndex + 1, lastYIndex) && _grid[centerXIndex + 1, lastYIndex] != null);
-    }
+    // *************************************************
+    // Main logic
+    // ************************************************* 
 
     void Update()
     {
@@ -184,7 +140,10 @@ public class Level : MonoBehaviour
 
 
                     Ray nextRay = new Ray(hitPoint, reflect);
-                    IntersectsBalls(nextRay, out hitBall, out hitInfo);
+                    if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
+                    {
+                        Debug.Log(hitBall);
+                    }
                 }
             }
         }
@@ -224,8 +183,7 @@ public class Level : MonoBehaviour
             var centerToHitDir = (hitInfo.point - gridPosition).normalized;
             if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
-                // todo: don't move this ball there. We need to have a "pre-view ball"
-                _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(gridX, gridY);
+                _ballShooter.ShowPreviewBall(_ballSpawner.GeneratePosition(gridX, gridY));
 
                 // todo: create list of points we need to visit
                 // todo: visit path; end of path => try merge
@@ -241,10 +199,23 @@ public class Level : MonoBehaviour
             }
             else
             {
-                // todo: hide ball properly.
-                _ballShooter.GetCurrentBall().transform.position = new Vector3(-1000, -1000, 0);
+                _ballShooter.HidePreviewBall();
             }
         }
+    }
+
+    // *************************************************
+    // Helper functions down here
+    // ************************************************* 
+
+    private void SpawnBallOnGrid(int x, int y, int value)
+    {
+        _grid[x, y] = _ballSpawner.SpawnBallOnGrid(x, y, value).GetComponent<Ball>();
+    }
+
+    private void DestroyBallOnGrid(int x, int y)
+    {
+        Destroy(_grid[x, y].gameObject);
     }
 
     private bool IsInRange(float min, float max, float value)
@@ -320,5 +291,47 @@ public class Level : MonoBehaviour
         }
 
         return CoordinatesInRange(outX, outY) && !CoordinatesOccupied(outX, outY);
+    }
+
+    private bool IntersectsBalls(Ray ray, out GameObject outGameObject, out RaycastHit outHitInfo)
+    {
+        float closestDistance = Single.PositiveInfinity;
+        bool found = false;
+        outGameObject = null;
+        outHitInfo = new RaycastHit();
+
+        for (int y = 0; y < MAX_GRID_HEIGHT; ++y)
+        {
+            for (int x = 0; x < MAX_GRID_WIDTH; ++x)
+            {
+                if (!_grid[x, y])
+                {
+                    continue;
+                }
+
+                GameObject go = _grid[x, y].gameObject;
+                if (go.GetComponent<Collider>().Raycast(ray, out var tmpHitInfo, 1000.0f))
+                {
+                    if (tmpHitInfo.distance < closestDistance)
+                    {
+                        outHitInfo = tmpHitInfo;
+                        closestDistance = outHitInfo.distance;
+                        outGameObject = go;
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    private bool ReachedGameOverState()
+    {
+        int centerXIndex = MAX_GRID_WIDTH / 2;
+        int lastYIndex = MAX_GRID_HEIGHT - 1;
+        return (CoordinatesInRange(centerXIndex, lastYIndex) && _grid[centerXIndex, lastYIndex] != null)
+               || (CoordinatesInRange(centerXIndex - 1, lastYIndex) && _grid[centerXIndex - 1, lastYIndex] != null)
+               || (CoordinatesInRange(centerXIndex + 1, lastYIndex) && _grid[centerXIndex + 1, lastYIndex] != null);
     }
 }
