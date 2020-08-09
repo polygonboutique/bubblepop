@@ -477,6 +477,11 @@ public class Level : MonoBehaviour
         }
     }
 
+    private Ball DetermineMergeTarget(List<Ball> ballCluster)
+    {
+        return ballCluster[0];
+    }
+
     private void MergeBalls(int activeGridX, int activeGridY)
     {
         List<Ball> ballCluster = new List<Ball>();
@@ -484,16 +489,20 @@ public class Level : MonoBehaviour
 
         if (ballCluster.Count >= 2)
         {
-            Ball mergeTarget = ballCluster[0];
+            Ball mergeTarget = DetermineMergeTarget(ballCluster);
             List<Vector3> path = new List<Vector3>();
             path.Add(mergeTarget.transform.position);
 
             _numLerpAnimationsRunning = ballCluster.Count - 1;
             _lerpAnimationsRunning = true;
             
-            for (int i = 1; i < ballCluster.Count; ++i)
+            foreach (Ball merger in ballCluster)
             {
-                Ball merger = ballCluster[i];
+                if (mergeTarget == merger)
+                {
+                    continue;
+                }
+
                 RemoveBallFromGrid(merger.GetGridXCoord(), merger.GetGridYCoord());
                 StartCoroutine(LerpBallAnimation(merger, mergeTarget.GetGridXCoord(), mergeTarget.GetGridYCoord(), path));
             }
