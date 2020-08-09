@@ -19,16 +19,26 @@ public class BallShooter : MonoBehaviour
         _nextBallSpawnPosition = nextBallSpawnPosition;
 
         _currentBall = SpawnRandomBall(_currentBallSpawnPosition);
+        _currentBall.name = "CurrentBall";
+        
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition);
+        _nextBall.name = "NextBall";
+        
         _previewBall = _ballSpawner.SpawnBall(BIG_NUMBER, _currentBall.GetComponent<Ball>().GetValue());
+        _previewBall.name = "PreviewBall";
     }
 
     public void NextBall()
     {
         _currentBall = _nextBall;
         _currentBall.transform.position = _currentBallSpawnPosition;
-        _previewBall = _ballSpawner.SpawnBall(BIG_NUMBER, _currentBall.GetComponent<Ball>().GetValue());
+        _currentBall.name = "NEXT BALL";
+        
         _nextBall = SpawnRandomBall(_nextBallSpawnPosition);
+        _nextBall.name = "NEXT BALL";
+
+        var prevBall = _previewBall.GetComponent<Ball>();
+        prevBall.SetValue(_currentBall.GetComponent<Ball>().GetValue());
     }
 
     public Vector3 GetPosition()
