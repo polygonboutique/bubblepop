@@ -3,6 +3,13 @@ using UnityEngine;
 using Plane = UnityEngine.Plane;
 using Vector3 = UnityEngine.Vector3;
 
+/*
+ * todos:
+ * - rename this file to "InGame" and remove "Level"
+ * - move game over check to "Main"
+ * - remove debug drawings
+ */
+
 public class Level : MonoBehaviour
 {
     private const int MAX_GRID_WIDTH = 6;
@@ -124,11 +131,6 @@ public class Level : MonoBehaviour
             Debug.Log("Game Over!");
         }
 
-        // check, if can shoot
-        // else, tween 
-        //  transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime);
-
-
         Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseCoordsWorldSpace.z = 0;
         Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
@@ -218,10 +220,11 @@ public class Level : MonoBehaviour
                 }
             }
 
-            var centerToHitDir = (hitInfo.point - _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord()))
-                .normalized;
+            var gridPosition = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
+            var centerToHitDir = (hitInfo.point - gridPosition).normalized;
             if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
+                // todo: don't move this ball there. We need to have a "pre-view ball"
                 _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(gridX, gridY);
 
                 // todo: create list of points we need to visit
@@ -238,7 +241,7 @@ public class Level : MonoBehaviour
             }
             else
             {
-                // todo: hide ball.
+                // todo: hide ball properly.
                 _ballShooter.GetCurrentBall().transform.position = new Vector3(-1000, -1000, 0);
             }
         }
