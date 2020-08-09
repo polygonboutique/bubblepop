@@ -104,6 +104,11 @@ public class InGame : MonoBehaviour
             Debug.Log("Game Over!");
             return;
         }
+        else if (ReachedWinState())
+        {
+            Debug.Log("You won!");
+            return;   
+        }
 
         if (_mergeAnimationsRunning && LerpAnimationsCompleted())
         {
@@ -178,7 +183,7 @@ public class InGame : MonoBehaviour
             if (didHitPlane)
             {
                 Vector3 reflect = Vector3.Reflect(ray.direction, closestPlane.normal);
-                
+
                 // add plane intersection point to path
                 animationPath.Add(closestHitPoint);
                 linesToDraw.Add(closestHitPoint);
@@ -366,6 +371,22 @@ public class InGame : MonoBehaviour
         return (CoordinatesInRange(centerXIndex, lastYIndex) && _grid[centerXIndex, lastYIndex] != null)
                || (CoordinatesInRange(centerXIndex - 1, lastYIndex) && _grid[centerXIndex - 1, lastYIndex] != null)
                || (CoordinatesInRange(centerXIndex + 1, lastYIndex) && _grid[centerXIndex + 1, lastYIndex] != null);
+    }
+
+    private bool ReachedWinState()
+    {
+        for (int y = 0; y < MAX_GRID_HEIGHT; ++y)
+        {
+            for (int x = 0; x < MAX_GRID_WIDTH; x++)
+            {
+                if (CoordinatesOccupied(x, y))
+                {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
 
     private bool CanShoot()
