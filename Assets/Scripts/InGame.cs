@@ -44,6 +44,8 @@ public class InGame : MonoBehaviour
     public void Initialize(GameObject ballPrefab, GameObject gameOverGroup,
         GameObject winScreenGroup, LineRenderer lineRenderer, float ballSize)
     {
+        name = "Ingame";
+        
         _ballPrefab = ballPrefab;
         _gameOverGroup = gameOverGroup;
         _winScreenGroup = winScreenGroup;
@@ -85,6 +87,9 @@ public class InGame : MonoBehaviour
     private void InitializeBallSpawner(GameObject ballPrefab, float ballScale)
     {
         _ballSpawnerGo = new GameObject();
+        _ballSpawnerGo.name = "BallSpawner";
+        _ballSpawnerGo.transform.parent = transform;
+        
         _ballSpawner = _ballSpawnerGo.AddComponent<BallSpawner>();
         _ballSpawner.Initialize(ballPrefab, ballScale);
     }
@@ -98,6 +103,8 @@ public class InGame : MonoBehaviour
         Vector3 nextBallPosition = _ballSpawner.GeneratePosition(widthIndex - 2, MAX_GRID_HEIGHT + 1);
 
         _ballShooterGo = new GameObject();
+        _ballShooterGo.name = "BallShooter";
+        _ballShooterGo.transform.parent = transform;
         _ballShooter = _ballShooterGo.AddComponent<BallShooter>();
         _ballShooter.Initialize(ballSpawner, currentBallPosition, nextBallPosition);
     }
