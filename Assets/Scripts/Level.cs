@@ -460,13 +460,20 @@ public class Level : MonoBehaviour
 
         // now we have a valid cluster for the given value
 
-        if (ballCluster.Count >= 1)
+        if (ballCluster.Count >= 2)
         {
-            // Ball otherBall = possibleMerges[0];
-            // List<Vector3> path = new List<Vector3>();
-            // path.Add(otherBall.transform.position);
+            Ball mergeTarget = ballCluster[0];
+            List<Vector3> path = new List<Vector3>();
+            path.Add(mergeTarget.transform.position);
 
-            // RemoveBallFromGrid(activeGridX, activeGridY);
+            for (int i = 1; i < ballCluster.Count; ++i)
+            {
+                Ball merger = ballCluster[i];
+                RemoveBallFromGrid(merger.GetGridXCoord(), merger.GetGridYCoord());
+                StartCoroutine(LerpBallAnimation(merger, mergeTarget.GetGridXCoord(), mergeTarget.GetGridYCoord(), path));
+            }
+
+            // 
             // StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
 
             // Always merge up! take the first most highest up ball to merge into. 
@@ -512,44 +519,24 @@ public class Level : MonoBehaviour
         yield return null;
     }
 
-    // IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
-    // {
-    //     const float epsilon = 0.05f;
-    //     const float speed = 100.0f;
-    //     while (path.Count > 0)
-    //     {
-    //         while (Vector3.Distance(ball.transform.position, path[0]) > epsilon)
-    //         {
-    //             ball.transform.position = Vector3.MoveTowards(ball.transform.position, path[0], Time.deltaTime * speed);
-    //             yield return null;
-    //         }
-    //
-    //         path.RemoveAt(0);
-    //         yield return null;
-    //     }
-    //
-    //     var value = ball.GetValue();
-    //     Destroy(ball.gameObject);
-    //
-    //     switch (actionAfterMove)
-    //     {
-    //         case ActionAfterMove.MoveGrid:
-    //             // tell ball to move to given grid coords
-    //             RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
-    //             AssignBallToGrid(ball, targetGridX, targetGridY);
-    //             break;
-    //         case ActionAfterMove.Spawn:
-    //             SpawnBallOnGrid(targetGridX, targetGridY, value);
-    //             TryMerge(targetGridX, targetGridY);
-    //             break;
-    //         case ActionAfterMove.Merge:
-    //             _grid[targetGridX, targetGridY].IncreaseValue();
-    //             TryMerge(targetGridX, targetGridY);
-    //             break;
-    //         default:
-    //             throw new ArgumentOutOfRangeException(nameof(actionAfterMove), actionAfterMove, null);
-    //     }
-    //
-    //     yield return null;
-    // }
+    IEnumerator LerpBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
+    {
+        float elapsed = 0;
+        float targetDuration = 0.65f; // seconds
+        Vector3 initialLerpPosition = ball.transform.position;
+
+        while (elapsed < targetDuration)
+        {
+            elapsed += Time.deltaTime;
+            float lerpAmount = elapsed / targetDuration;
+            float t = Mathf.Sin(lerpAmount * Mathf.PI * 0.5f);
+            ball.transform.position = Vector3.Lerp(initialLerpPosition, path[0], t);
+            yield return null;
+        }
+
+        Destroy(ball.gameObject);
+        _grid[targetGridX, targetGridY].IncreaseValue();
+
+        yield return null;
+    }
 }
