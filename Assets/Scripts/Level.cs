@@ -12,7 +12,8 @@ using Vector3 = UnityEngine.Vector3;
  * - remove debug drawings
  */
 
-public enum ActionAfterMove {
+public enum ActionAfterMove
+{
     Nothing,
     Spawn,
     Merge
@@ -213,7 +214,8 @@ public class Level : MonoBehaviour
                 {
                     _canShoot = false;
                     _ballShooter.HidePreviewBall();
-                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall(), gridX, gridY, animationPath, ActionAfterMove.Spawn));
+                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(),
+                        gridX, gridY, animationPath, ActionAfterMove.Spawn));
                 }
             }
             else
@@ -232,9 +234,9 @@ public class Level : MonoBehaviour
         _grid[x, y] = _ballSpawner.SpawnBallOnGrid(x, y, value).GetComponent<Ball>();
     }
 
-    private void DestroyBallOnGrid(int x, int y)
+    private void RemoveBallFromGrid(int x, int y)
     {
-        Destroy(_grid[x, y].gameObject);
+        _grid[x, y] = null;
     }
 
     private bool IsInRange(float min, float max, float value)
@@ -358,78 +360,75 @@ public class Level : MonoBehaviour
     {
         return _canShoot;
     }
-    
+
     private void TryMerge(int activeGridX, int activeGridY)
     {
-        
-        //
-        // - if has multiple neighbours which can merge, they are moved into active grid  
-        //
-        //
-        //
-        // 
-
-        Ball ballComp = _grid[activeGridX, activeGridY];
-
+        Ball ball = _grid[activeGridX, activeGridY];
         bool isEvenRow = activeGridY % 2 == 0;
-        
+
         int topY = activeGridY - 1;
         int bottomY = activeGridY + 1;
         int diagonalLeftX = activeGridX + (isEvenRow ? -1 : 0);
         int diagonalRightX = activeGridX + (isEvenRow ? 0 : 1);
         int leftX = activeGridX - 1;
         int rightX = activeGridX + 1;
-        List<GameObject> possibleMerges = new List<GameObject>();
         
+        List<Ball> possibleMerges = new List<Ball>();
+
         // check top-left, top-right, right, bottom-right, bottom-left, left
-        if (CoordinatesInRange(diagonalLeftX, topY) 
-            && CoordinatesOccupied(diagonalLeftX, topY) 
-            && ballComp.CanMerge(_grid[diagonalLeftX, topY]))
+        if (CoordinatesInRange(diagonalLeftX, topY)
+            && CoordinatesOccupied(diagonalLeftX, topY)
+            && ball.CanMerge(_grid[diagonalLeftX, topY]))
         {
-            Debug.Log("MERGE TOP LEFT");
-            possibleMerges.Add(_grid[diagonalLeftX, topY].gameObject);
-        }
-        
-        if (CoordinatesInRange(diagonalRightX, topY) 
-            && CoordinatesOccupied(diagonalRightX, topY) 
-            && ballComp.CanMerge(_grid[diagonalRightX, topY]))
-        {
-            Debug.Log("MERGE TOP RIGHT");
-            possibleMerges.Add(_grid[diagonalRightX, topY].gameObject);
-        }
-        
-        if (CoordinatesInRange(rightX, activeGridY) 
-            && CoordinatesOccupied(rightX, activeGridY) 
-            && ballComp.CanMerge(_grid[rightX, activeGridY]))
-        {
-            Debug.Log("MERGE RIGHT");
-            possibleMerges.Add(_grid[rightX, activeGridY].gameObject);
-        }
-        
-        if (CoordinatesInRange(diagonalRightX, bottomY) 
-            && CoordinatesOccupied(diagonalRightX, bottomY) 
-            && ballComp.CanMerge(_grid[diagonalRightX, bottomY]))
-        {
-            Debug.Log("MERGE BOTTOM RIGHT");
-            possibleMerges.Add(_grid[diagonalRightX, bottomY].gameObject);
+            possibleMerges.Add(_grid[diagonalLeftX, topY]);
         }
 
-        if (CoordinatesInRange(diagonalLeftX, bottomY) 
-            && CoordinatesOccupied(diagonalLeftX, bottomY) 
-            && ballComp.CanMerge(_grid[diagonalLeftX, bottomY]))
+        if (CoordinatesInRange(diagonalRightX, topY)
+            && CoordinatesOccupied(diagonalRightX, topY)
+            && ball.CanMerge(_grid[diagonalRightX, topY]))
         {
-            Debug.Log("MERGE BOTTOM LEFT");
-            possibleMerges.Add(_grid[diagonalLeftX, bottomY].gameObject);
+            possibleMerges.Add(_grid[diagonalRightX, topY]);
         }
-        
-        if (CoordinatesInRange(leftX, activeGridY) 
-            && CoordinatesOccupied(leftX, activeGridY) 
-            && ballComp.CanMerge(_grid[leftX, activeGridY]))
+
+        if (CoordinatesInRange(rightX, activeGridY)
+            && CoordinatesOccupied(rightX, activeGridY)
+            && ball.CanMerge(_grid[rightX, activeGridY]))
         {
-            Debug.Log("MERGE LEFT");
-            possibleMerges.Add(_grid[leftX, activeGridY].gameObject);
+            possibleMerges.Add(_grid[rightX, activeGridY]);
         }
-        
+
+        if (CoordinatesInRange(diagonalRightX, bottomY)
+            && CoordinatesOccupied(diagonalRightX, bottomY)
+            && ball.CanMerge(_grid[diagonalRightX, bottomY]))
+        {
+            possibleMerges.Add(_grid[diagonalRightX, bottomY]);
+        }
+
+        if (CoordinatesInRange(diagonalLeftX, bottomY)
+            && CoordinatesOccupied(diagonalLeftX, bottomY)
+            && ball.CanMerge(_grid[diagonalLeftX, bottomY]))
+        {
+            possibleMerges.Add(_grid[diagonalLeftX, bottomY]);
+        }
+
+        if (CoordinatesInRange(leftX, activeGridY)
+            && CoordinatesOccupied(leftX, activeGridY)
+            && ball.CanMerge(_grid[leftX, activeGridY]))
+        {
+            possibleMerges.Add(_grid[leftX, activeGridY]);
+        }
+
+        if (possibleMerges.Count >= 1)
+        {
+            Ball otherBall = possibleMerges[0];
+            List<Vector3> path = new List<Vector3>();
+            path.Add(otherBall.transform.position);
+           
+            Debug.Log("MERGE CALL");
+            RemoveBallFromGrid(activeGridX, activeGridY);
+            StartCoroutine(MoveBallAnimation(ball, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
+        }
+        else if (possibleMerges.Count == 0)
         {
             _ballShooter.NextBall();
             _canShoot = true;
@@ -443,7 +442,7 @@ public class Level : MonoBehaviour
     // *************************************************
     // Animation functions
     // *************************************************
-    IEnumerator MoveBallAnimation(GameObject ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
+    IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
     {
         const float epsilon = 0.05f;
         const float speed = 100.0f;
@@ -459,8 +458,8 @@ public class Level : MonoBehaviour
             yield return null;
         }
 
-        var value = ball.GetComponent<Ball>().GetValue();
-        Destroy(ball);
+        var value = ball.GetValue();
+        Destroy(ball.gameObject); // todo: destroy from grid
 
         switch (actionAfterMove)
         {
@@ -476,7 +475,7 @@ public class Level : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException(nameof(actionAfterMove), actionAfterMove, null);
         }
-        
+
         yield return null;
     }
 }
