@@ -118,8 +118,7 @@ public class InGame : MonoBehaviour
                 Destroy(_mergeTarget.gameObject);
             }
 
-            // Check balls are supposed to fall down =>
-            // loop through balls and find clusters, which can be removed, because they are not connected anymore
+            RemoveFreeFloatingBall();
 
             _mergeTarget = null;
             NextTurn();
@@ -214,6 +213,8 @@ public class InGame : MonoBehaviour
         _ballShooter.NextBall();
         _canShoot = true;
         _canMoveRow = true;
+        
+        // todo: advance rows
     }
 
     // *************************************************
@@ -405,17 +406,18 @@ public class InGame : MonoBehaviour
         return neighbours;
     }
 
-    private void GatherClusters(int gridX, int gridY, ref List<Ball> ballCluster)
+    private void GatherClusters(int gridX, int gridY, ref List<Ball> ballCluster, bool sameValueRequired)
     {
         Ball activeBall = _grid[gridX, gridY];
         List<Ball> neighbours = GatherNeighboursBalls(gridX, gridY);
 
-        foreach (Ball neighbour in neighbours) 
+        foreach (Ball neighbour in neighbours)
         {
-            if (activeBall.CanMerge(neighbour) && !ballCluster.Contains(neighbour))
+            bool canMerge = !sameValueRequired || activeBall.CanMerge(neighbour);
+            if (canMerge && !ballCluster.Contains(neighbour))
             {
                 ballCluster.Add(neighbour);
-                GatherClusters(neighbour.GetGridXCoord(), neighbour.GetGridYCoord(), ref ballCluster);
+                GatherClusters(neighbour.GetGridXCoord(), neighbour.GetGridYCoord(), ref ballCluster, sameValueRequired);
             }
         }
     }
@@ -427,8 +429,7 @@ public class InGame : MonoBehaviour
 
         foreach (Ball ball in ballCluster)
         {
-            // do manhatten distance
-            // |x1 - x2| + |y1 - y2|
+            // manhattan dist: |x1 - x2| + |y1 - y2|
             int distance = ball.GetGridXCoord() + ball.GetGridYCoord();
             if (distance < maxDist)
             {
@@ -443,7 +444,7 @@ public class InGame : MonoBehaviour
     private void MergeBalls(int activeGridX, int activeGridY)
     {
         List<Ball> ballCluster = new List<Ball>();
-        GatherClusters(activeGridX, activeGridY, ref ballCluster);
+        GatherClusters(activeGridX, activeGridY, ref ballCluster, true);
 
         if (ballCluster.Count >= 2)
         {
@@ -480,6 +481,41 @@ public class InGame : MonoBehaviour
         {
             RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
             Destroy(ball.gameObject);
+        }
+    }
+
+    private void RemoveFreeFloatingBall()
+    {
+        List<int> tilesToVisit = new List<int>();
+        
+        for (int x = 0; x < MAX_GRID_WIDTH; x++) 
+        {
+            tilesToVisit.Add(x);
+        }
+
+        while (tilesToVisit.Count > 0)
+        {
+            int x = tilesToVisit[0];
+            
+            if (CoordinatesOccupied(x, 0))
+            {
+                List<Ball> cluster = new List<Ball>();
+                GatherClusters(x, 0, ref cluster, false);
+            
+                for (int i = tilesToVisit.Count - 1; i >= 1; --i)
+                {
+                    Ball ball = _grid[tilesToVisit[i], 0];
+                    if (cluster.Contains(ball))
+                    {
+                        tilesToVisit.RemoveAt(i);
+                    }
+                }
+                
+                // here we have clean data
+                Debug.Log("Tile left to check: " + tilesToVisit.Count);
+            }
+
+            tilesToVisit.RemoveAt(0);
         }
     }
 
