@@ -12,6 +12,12 @@ using Vector3 = UnityEngine.Vector3;
  * - remove debug drawings
  */
 
+public enum ActionAfterMove {
+    Nothing,
+    Spawn,
+    Merge
+}
+
 public class Level : MonoBehaviour
 {
     private const int MAX_GRID_WIDTH = 6;
@@ -207,7 +213,7 @@ public class Level : MonoBehaviour
                 {
                     _canShoot = false;
                     _ballShooter.HidePreviewBall();
-                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall(), gridX, gridY, animationPath));
+                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall(), gridX, gridY, animationPath, ActionAfterMove.Spawn));
                 }
             }
             else
@@ -353,7 +359,7 @@ public class Level : MonoBehaviour
         return _canShoot;
     }
     
-    private void TryMerge(int activeGridX, int activeGridY, GameObject ball)
+    private void TryMerge(int activeGridX, int activeGridY)
     {
         
         //
@@ -362,8 +368,8 @@ public class Level : MonoBehaviour
         //
         //
         // 
-        
-        Ball ballComp = ball.GetComponent<Ball>();
+
+        Ball ballComp = _grid[activeGridX, activeGridY];
 
         bool isEvenRow = activeGridY % 2 == 0;
         
@@ -437,7 +443,7 @@ public class Level : MonoBehaviour
     // *************************************************
     // Animation functions
     // *************************************************
-    IEnumerator MoveBallAnimation(GameObject ball, int targetGridX, int targetGridY, List<Vector3> path)
+    IEnumerator MoveBallAnimation(GameObject ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
     {
         const float epsilon = 0.05f;
         const float speed = 100.0f;
@@ -453,11 +459,24 @@ public class Level : MonoBehaviour
             yield return null;
         }
 
-        // todo: switch on a flag; spawn or merge
         var value = ball.GetComponent<Ball>().GetValue();
         Destroy(ball);
-        SpawnBallOnGrid(targetGridX, targetGridY, value);
-        TryMerge(targetGridX, targetGridY, ball);
+
+        switch (actionAfterMove)
+        {
+            case ActionAfterMove.Nothing:
+                break;
+            case ActionAfterMove.Spawn:
+                SpawnBallOnGrid(targetGridX, targetGridY, value);
+                TryMerge(targetGridX, targetGridY);
+                break;
+            case ActionAfterMove.Merge:
+                TryMerge(targetGridX, targetGridY);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(actionAfterMove), actionAfterMove, null);
+        }
+        
         yield return null;
     }
 }
