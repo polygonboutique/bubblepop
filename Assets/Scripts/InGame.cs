@@ -6,11 +6,6 @@ using UnityEngine.Assertions;
 using Plane = UnityEngine.Plane;
 using Vector3 = UnityEngine.Vector3;
 
-/*
- * todos:
- * - remove debug drawings
- */
-
 public class InGame : MonoBehaviour
 {
     private const int MAX_GRID_WIDTH = 6;
@@ -137,61 +132,29 @@ public class InGame : MonoBehaviour
 
         List<Vector3> linesToDraw = new List<Vector3>();
         linesToDraw.Add(_ballShooter.GetPosition());
-
-        Color shootDirColor = new Color32(255, 0, 22, 255);
-        Debug.DrawLine(_ballShooter.GetPosition(), _ballShooter.GetPosition() + shootDirection * 100, shootDirColor);
-
+        
         GameObject hitBall;
         RaycastHit hitInfo;
         List<Vector3> animationPath = new List<Vector3>();
         if (!IntersectsBalls(ray, out hitBall, out hitInfo))
         {
-            // Hit planes
-            Color32[] planeColor = new Color32[3];
-            planeColor[0] = new Color32(255, 0, 255, 255);
-            planeColor[1] = new Color32(0, 255, 0, 255);
-            planeColor[1] = new Color32(255, 0, 223, 255);
-
+           
             // => max 1 reflection
             // track nearest intersection point and store "next ray" here, then after the loop we do 1 more intersection test vs balls
             for (int i = 0; i < _boundsPlanes.Length; ++i)
             {
                 Plane plane = _boundsPlanes[i];
-
-                Vector3 planeOrigin = -plane.normal * plane.distance;
-                Debug.DrawLine(planeOrigin, planeOrigin + Vector3.down * 200, planeColor[i]);
-                Debug.DrawLine(planeOrigin, planeOrigin + Vector3.up * 200, planeColor[i]);
-
+                
                 // todo: get closest intersection and use that for "next ray"
                 if (plane.Raycast(ray, out float enter))
                 {
                     Vector3 hitPoint = ray.GetPoint(enter);
-
                     Vector3 reflect = Vector3.Reflect(ray.direction, plane.normal);
-                    Debug.DrawLine(hitPoint, hitPoint + reflect * 200, shootDirColor);
-
-                    {
-                        Vector3 tangent = Vector3.Cross(plane.normal, Vector3.forward);
-
-                        if (tangent.magnitude == 0)
-                        {
-                            tangent = Vector3.Cross(plane.normal, Vector3.up);
-                        }
-
-                        {
-                            Color color = new Color32(255, 255, 22, 255);
-                            Debug.DrawLine(hitPoint, hitPoint + tangent * 200, color);
-                        }
-
-                        {
-                            Color color = new Color32(0, 0, 225, 255);
-                            Debug.DrawLine(hitPoint, hitPoint + plane.normal * 200, color);
-                        }
-                    }
 
                     // add plane intersection point to path
                     animationPath.Add(hitPoint);
                     linesToDraw.Add(hitPoint);
+                    
                     Ray nextRay = new Ray(hitPoint, reflect);
                     if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
                     {
@@ -212,36 +175,9 @@ public class InGame : MonoBehaviour
             }
             
             var hitBallComp = hitBall.GetComponent<Ball>();
-
-            {
-                Vector3 tangent = Vector3.Cross(hitInfo.normal, Vector3.forward);
-
-                if (tangent.magnitude == 0)
-                {
-                    tangent = Vector3.Cross(hitInfo.normal, Vector3.up);
-                }
-
-                {
-                    Color color = new Color32(255, 255, 22, 255);
-                    var position = hitInfo.point;
-                    Debug.DrawLine(position, position + tangent * 200, color);
-                }
-
-                {
-                    Color color = new Color32(0, 0, 225, 255);
-                    var position = hitInfo.point;
-                    Debug.DrawLine(position, position + hitInfo.normal * 200, color);
-                }
-
-                {
-                    Color color = new Color32(255, 0, 225, 255);
-                    var position = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
-                    Debug.DrawLine(position, position + (hitInfo.point - position).normalized * 200, color);
-                }
-            }
-
             var gridPosition = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
             var centerToHitDir = (hitInfo.point - gridPosition).normalized;
+            
             if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
                 Vector3 nextPosition = _ballSpawner.GeneratePosition(gridX, gridY);
