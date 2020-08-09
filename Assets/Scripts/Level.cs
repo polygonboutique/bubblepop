@@ -165,7 +165,7 @@ public class Level : MonoBehaviour
                     {
                         break;
                     }
-   
+
                     _ballShooter.HidePreviewBall();
                 }
             }
@@ -239,7 +239,7 @@ public class Level : MonoBehaviour
     {
         _grid[x, y] = null;
     }
-    
+
     private void AssignBallToGrid(Ball ball, int targetGridX, int targetGridY)
     {
         _grid[targetGridX, targetGridY] = ball;
@@ -368,74 +368,109 @@ public class Level : MonoBehaviour
         return _canShoot;
     }
 
-    private void TryMerge(int activeGridX, int activeGridY)
+    private void GatherClusters(int gridX, int gridY, ref List<Ball> ballCluster)
     {
-        Ball activeBall = _grid[activeGridX, activeGridY];
-        bool isEvenRow = activeGridY % 2 == 0;
+        Ball activeBall = _grid[gridX, gridY];
+        bool isEvenRow = gridY % 2 == 0;
 
-        int topY = activeGridY - 1;
-        int bottomY = activeGridY + 1;
-        int diagonalLeftX = activeGridX + (isEvenRow ? -1 : 0);
-        int diagonalRightX = activeGridX + (isEvenRow ? 0 : 1);
-        int leftX = activeGridX - 1;
-        int rightX = activeGridX + 1;
-        
-        List<Ball> possibleMerges = new List<Ball>();
+        int topY = gridY - 1;
+        int bottomY = gridY + 1;
+        int diagonalLeftX = gridX + (isEvenRow ? -1 : 0);
+        int diagonalRightX = gridX + (isEvenRow ? 0 : 1);
+        int leftX = gridX - 1;
+        int rightX = gridX + 1;
 
         // check top-left, top-right, right, bottom-right, bottom-left, left
         if (CoordinatesInRange(diagonalLeftX, topY)
-            && CoordinatesOccupied(diagonalLeftX, topY)
-            && activeBall.CanMerge(_grid[diagonalLeftX, topY]))
+            && CoordinatesOccupied(diagonalLeftX, topY))
         {
-            possibleMerges.Add(_grid[diagonalLeftX, topY]);
+            Ball ball = _grid[diagonalLeftX, topY];
+            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            {
+                ballCluster.Add(_grid[diagonalLeftX, topY]);
+                GatherClusters(diagonalLeftX, topY, ref ballCluster);
+            }
         }
 
         if (CoordinatesInRange(diagonalRightX, topY)
             && CoordinatesOccupied(diagonalRightX, topY)
             && activeBall.CanMerge(_grid[diagonalRightX, topY]))
         {
-            possibleMerges.Add(_grid[diagonalRightX, topY]);
+            Ball ball = _grid[diagonalRightX, topY];
+            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            {
+                ballCluster.Add(_grid[diagonalRightX, topY]);
+                GatherClusters(diagonalRightX, topY, ref ballCluster);
+            }
         }
 
-        if (CoordinatesInRange(rightX, activeGridY)
-            && CoordinatesOccupied(rightX, activeGridY)
-            && activeBall.CanMerge(_grid[rightX, activeGridY]))
+        if (CoordinatesInRange(rightX, gridY)
+            && CoordinatesOccupied(rightX, gridY)
+            && activeBall.CanMerge(_grid[rightX, gridY]))
         {
-            possibleMerges.Add(_grid[rightX, activeGridY]);
+            Ball ball = _grid[rightX, gridY];
+            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            {
+                ballCluster.Add(_grid[rightX, gridY]);
+                GatherClusters(rightX, gridY, ref ballCluster);
+            }
         }
 
         if (CoordinatesInRange(diagonalRightX, bottomY)
             && CoordinatesOccupied(diagonalRightX, bottomY)
             && activeBall.CanMerge(_grid[diagonalRightX, bottomY]))
         {
-            possibleMerges.Add(_grid[diagonalRightX, bottomY]);
+            Ball ball = _grid[diagonalRightX, bottomY];
+            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            {
+                ballCluster.Add(_grid[diagonalRightX, bottomY]);
+                GatherClusters(diagonalRightX, bottomY, ref ballCluster);
+            }
         }
 
         if (CoordinatesInRange(diagonalLeftX, bottomY)
             && CoordinatesOccupied(diagonalLeftX, bottomY)
             && activeBall.CanMerge(_grid[diagonalLeftX, bottomY]))
         {
-            possibleMerges.Add(_grid[diagonalLeftX, bottomY]);
+            Ball ball = _grid[diagonalLeftX, bottomY];
+            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            {
+                ballCluster.Add(_grid[diagonalLeftX, bottomY]);
+                GatherClusters(diagonalLeftX, bottomY, ref ballCluster);
+            }
         }
 
-        if (CoordinatesInRange(leftX, activeGridY)
-            && CoordinatesOccupied(leftX, activeGridY)
-            && activeBall.CanMerge(_grid[leftX, activeGridY]))
+        if (CoordinatesInRange(leftX, gridY)
+            && CoordinatesOccupied(leftX, gridY)
+            && activeBall.CanMerge(_grid[leftX, gridY]))
         {
-            possibleMerges.Add(_grid[leftX, activeGridY]);
+            Ball ball = _grid[leftX, gridY];
+            if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
+            {
+                ballCluster.Add(_grid[leftX, gridY]);
+                GatherClusters(leftX, gridY, ref ballCluster);
+            }
         }
+    }
 
-        if (possibleMerges.Count >= 1)
+    private void TryMerge(int activeGridX, int activeGridY)
+    {
+        List<Ball> ballCluster = new List<Ball>();
+        GatherClusters(activeGridX, activeGridY, ref ballCluster);
+
+        // now we have a valid cluster for the given value
+
+        if (ballCluster.Count >= 1)
         {
-            Ball otherBall = possibleMerges[0];
-            List<Vector3> path = new List<Vector3>();
-            path.Add(otherBall.transform.position);
-            
-            RemoveBallFromGrid(activeGridX, activeGridY);
+            // Ball otherBall = possibleMerges[0];
+            // List<Vector3> path = new List<Vector3>();
+            // path.Add(otherBall.transform.position);
+
+            // RemoveBallFromGrid(activeGridX, activeGridY);
             // StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
-         
+
             // Always merge up! take the first most highest up ball to merge into. 
-            
+
             // check, if the other ball, can has neighbours of same value:
             // if so, we put it into our cluster list and merge them all into the most "top-left" bubble
         }
@@ -468,15 +503,15 @@ public class Level : MonoBehaviour
         Destroy(ball.gameObject);
 
         SpawnBallOnGrid(targetGridX, targetGridY, value);
-        // TryMerge(targetGridX, targetGridY);
-        
+        TryMerge(targetGridX, targetGridY);
+
         _ballShooter.NextBall();
         _canShoot = true;
         _canMoveRow = true;
 
         yield return null;
     }
-    
+
     // IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
     // {
     //     const float epsilon = 0.05f;
