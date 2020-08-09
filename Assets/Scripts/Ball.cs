@@ -27,9 +27,9 @@ public class Ball : MonoBehaviour
         COLORS[9] = new Color32(229, 58, 255, 255);
     }
 
-    public static int GenerateRandomValue()
+    public static int GenerateCappedRandomValue()
     {
-        int maxExp = (int) Mathf.Log(Ball.MAX_VALUE, 2);
+        int maxExp = (int) Mathf.Log(Ball.MAX_VALUE, 2) / 2;
         int randomExp = rng.Next(1, maxExp);
         return (int) Math.Pow(2, randomExp);
     }

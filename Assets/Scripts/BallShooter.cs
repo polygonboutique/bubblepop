@@ -47,7 +47,7 @@ public class BallShooter : MonoBehaviour
 
     private GameObject SpawnRandomBall(Vector3 position)
     {
-        return _ballSpawner.SpawnBall(position, Ball.GenerateRandomValue());
+        return _ballSpawner.SpawnBall(position, Ball.GenerateCappedRandomValue());
     }
 
     public GameObject GetCurrentBall()

@@ -44,7 +44,7 @@ public class Level : MonoBehaviour
         {
             for (int x = 0; x < MAX_GRID_WIDTH; ++x)
             {
-                SpawnBallOnGrid(x, y, Ball.GenerateRandomValue());
+                SpawnBallOnGrid(x, y, Ball.GenerateCappedRandomValue());
             }
         }
 
@@ -412,7 +412,7 @@ public class Level : MonoBehaviour
             && CoordinatesOccupied(diagonalLeftX, bottomY) 
             && ballComp.CanMerge(_grid[diagonalLeftX, bottomY]))
         {
-            Debug.Log("MERGE BOTTOM RIGHT");
+            Debug.Log("MERGE BOTTOM LEFT");
             possibleMerges.Add(_grid[diagonalLeftX, bottomY].gameObject);
         }
         
@@ -420,7 +420,7 @@ public class Level : MonoBehaviour
             && CoordinatesOccupied(leftX, activeGridY) 
             && ballComp.CanMerge(_grid[leftX, activeGridY]))
         {
-            Debug.Log("MERGE BOTTOM RIGHT");
+            Debug.Log("MERGE LEFT");
             possibleMerges.Add(_grid[leftX, activeGridY].gameObject);
         }
         
