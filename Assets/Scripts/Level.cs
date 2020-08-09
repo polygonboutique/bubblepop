@@ -55,10 +55,11 @@ public class Level : MonoBehaviour
             }
         }
 
-        _boundsPlanes = new Plane[2];
+        _boundsPlanes = new Plane[3];
         _boundsPlanes[0] = new Plane(Vector3.right, 0.0f); // left
         _boundsPlanes[1] = new Plane(Vector3.left, _ballSpawner.GeneratePosition(MAX_GRID_WIDTH, 0).magnitude
                                                    - _ballSpawner.GetBallRadius()); // right
+        _boundsPlanes[2] = new Plane(Vector3.down, _ballSpawner.GetBallRadius() * 2); // up
 
         _canShoot = true;
     }
@@ -119,10 +120,13 @@ public class Level : MonoBehaviour
         if (!IntersectsBalls(ray, out hitBall, out hitInfo))
         {
             // Hit planes
-            Color32[] planeColor = new Color32[2];
+            Color32[] planeColor = new Color32[3];
             planeColor[0] = new Color32(255, 0, 255, 255);
             planeColor[1] = new Color32(0, 255, 0, 255);
+            planeColor[1] = new Color32(255, 0, 223, 255);
 
+            // => max 1 reflection
+            // track nearest intersection point and store "next ray" here, then after the loop we do 1 more intersection test vs balls
             for (int i = 0; i < _boundsPlanes.Length; ++i)
             {
                 Plane plane = _boundsPlanes[i];
@@ -131,6 +135,7 @@ public class Level : MonoBehaviour
                 Debug.DrawLine(planeOrigin, planeOrigin + Vector3.down * 200, planeColor[i]);
                 Debug.DrawLine(planeOrigin, planeOrigin + Vector3.up * 200, planeColor[i]);
 
+                // todo: get closest intersection and use that for "next ray"
                 if (plane.Raycast(ray, out float enter))
                 {
                     Vector3 hitPoint = ray.GetPoint(enter);
@@ -161,10 +166,12 @@ public class Level : MonoBehaviour
                     animationPath.Add(hitPoint);
 
                     Ray nextRay = new Ray(hitPoint, reflect);
-                    if (!IntersectsBalls(nextRay, out hitBall, out hitInfo))
+                    if (IntersectsBalls(nextRay, out hitBall, out hitInfo))
                     {
-                        _ballShooter.HidePreviewBall();
+                        break;
                     }
+   
+                    _ballShooter.HidePreviewBall();
                 }
             }
         }
@@ -363,7 +370,7 @@ public class Level : MonoBehaviour
 
     private void TryMerge(int activeGridX, int activeGridY)
     {
-        Ball ball = _grid[activeGridX, activeGridY];
+        Ball activeBall = _grid[activeGridX, activeGridY];
         bool isEvenRow = activeGridY % 2 == 0;
 
         int topY = activeGridY - 1;
@@ -378,42 +385,42 @@ public class Level : MonoBehaviour
         // check top-left, top-right, right, bottom-right, bottom-left, left
         if (CoordinatesInRange(diagonalLeftX, topY)
             && CoordinatesOccupied(diagonalLeftX, topY)
-            && ball.CanMerge(_grid[diagonalLeftX, topY]))
+            && activeBall.CanMerge(_grid[diagonalLeftX, topY]))
         {
             possibleMerges.Add(_grid[diagonalLeftX, topY]);
         }
 
         if (CoordinatesInRange(diagonalRightX, topY)
             && CoordinatesOccupied(diagonalRightX, topY)
-            && ball.CanMerge(_grid[diagonalRightX, topY]))
+            && activeBall.CanMerge(_grid[diagonalRightX, topY]))
         {
             possibleMerges.Add(_grid[diagonalRightX, topY]);
         }
 
         if (CoordinatesInRange(rightX, activeGridY)
             && CoordinatesOccupied(rightX, activeGridY)
-            && ball.CanMerge(_grid[rightX, activeGridY]))
+            && activeBall.CanMerge(_grid[rightX, activeGridY]))
         {
             possibleMerges.Add(_grid[rightX, activeGridY]);
         }
 
         if (CoordinatesInRange(diagonalRightX, bottomY)
             && CoordinatesOccupied(diagonalRightX, bottomY)
-            && ball.CanMerge(_grid[diagonalRightX, bottomY]))
+            && activeBall.CanMerge(_grid[diagonalRightX, bottomY]))
         {
             possibleMerges.Add(_grid[diagonalRightX, bottomY]);
         }
 
         if (CoordinatesInRange(diagonalLeftX, bottomY)
             && CoordinatesOccupied(diagonalLeftX, bottomY)
-            && ball.CanMerge(_grid[diagonalLeftX, bottomY]))
+            && activeBall.CanMerge(_grid[diagonalLeftX, bottomY]))
         {
             possibleMerges.Add(_grid[diagonalLeftX, bottomY]);
         }
 
         if (CoordinatesInRange(leftX, activeGridY)
             && CoordinatesOccupied(leftX, activeGridY)
-            && ball.CanMerge(_grid[leftX, activeGridY]))
+            && activeBall.CanMerge(_grid[leftX, activeGridY]))
         {
             possibleMerges.Add(_grid[leftX, activeGridY]);
         }
@@ -425,7 +432,11 @@ public class Level : MonoBehaviour
             path.Add(otherBall.transform.position);
             
             RemoveBallFromGrid(activeGridX, activeGridY);
-            StartCoroutine(MoveBallAnimation(ball, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
+            StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
+            
+            
+            // check, if the other ball, can has neighbours of same value: if so, then we merge into that ball
+            // if it does not have neighbours, then it merges into us
         }
         else if (possibleMerges.Count == 0)
         {
