@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 using Plane = UnityEngine.Plane;
-using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
 public class Level : MonoBehaviour
@@ -82,7 +76,7 @@ public class Level : MonoBehaviour
         Destroy(_grid[x, y].gameObject);
     }
 
-    private bool HitBalls(Ray ray, out GameObject outGameObject, out RaycastHit hitInfo)
+    private bool IntersectsBalls(Ray ray, out GameObject outGameObject, out RaycastHit hitInfo)
     {
         float closestDistance = Single.PositiveInfinity;
         bool found = false;
@@ -114,8 +108,22 @@ public class Level : MonoBehaviour
         return found;
     }
 
+    private bool ReachedGameOverState()
+    {
+        int centerXIndex = MAX_GRID_WIDTH / 2;
+        int lastYIndex = MAX_GRID_HEIGHT - 1;
+        return (CoordinatesInRange(centerXIndex, lastYIndex) && _grid[centerXIndex, lastYIndex] != null)
+               || (CoordinatesInRange(centerXIndex - 1, lastYIndex) && _grid[centerXIndex - 1, lastYIndex] != null)
+               || (CoordinatesInRange(centerXIndex + 1, lastYIndex) && _grid[centerXIndex + 1, lastYIndex] != null);
+    }
+
     void Update()
     {
+        if (ReachedGameOverState())
+        {
+            Debug.Log("Game Over!");
+        }
+
         // check, if can shoot
         // else, tween 
         //  transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime);
@@ -131,7 +139,7 @@ public class Level : MonoBehaviour
 
         GameObject hitBall;
         RaycastHit hitInfo;
-        if (!HitBalls(ray, out hitBall, out hitInfo))
+        if (!IntersectsBalls(ray, out hitBall, out hitInfo))
         {
             // Hit planes
             Color32[] planeColor = new Color32[2];
@@ -174,7 +182,7 @@ public class Level : MonoBehaviour
 
 
                     Ray nextRay = new Ray(hitPoint, reflect);
-                    HitBalls(nextRay, out hitBall, out hitInfo);
+                    IntersectsBalls(nextRay, out hitBall, out hitInfo);
                 }
             }
         }
@@ -202,7 +210,7 @@ public class Level : MonoBehaviour
                     var position = hitInfo.point;
                     Debug.DrawLine(position, position + hitInfo.normal * 200, color);
                 }
-                
+
                 {
                     Color color = new Color32(255, 0, 225, 255);
                     var position = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
@@ -210,7 +218,8 @@ public class Level : MonoBehaviour
                 }
             }
 
-            var centerToHitDir = (hitInfo.point - _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord())).normalized;
+            var centerToHitDir = (hitInfo.point - _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord()))
+                .normalized;
             if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
             {
                 _ballShooter.GetCurrentBall().transform.position = _ballSpawner.GeneratePosition(gridX, gridY);
@@ -222,7 +231,7 @@ public class Level : MonoBehaviour
                 {
                     _ballShooter.ShootBall(shootDirection); // kick off tween animation
                     _ballShooter.ReloadBall();
-                    
+
                     // todo: execture this, when tween is done. 
                     SpawnBallOnGrid(gridX, gridY, Ball.GenerateRandomValue());
                 }
