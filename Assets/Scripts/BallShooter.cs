@@ -49,5 +49,10 @@ public class BallShooter : MonoBehaviour
     {
         return _ballSpawner.SpawnBall(position, Ball.GenerateRandomValue());
     }
+
+    public GameObject GetCurrentBall()
+    {
+        return _currentBall;
+    }
 }
 

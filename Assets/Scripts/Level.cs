@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Plane = UnityEngine.Plane;
@@ -52,7 +53,7 @@ public class Level : MonoBehaviour
         _boundsPlanes[1] = new Plane(Vector3.left, _ballSpawner.GeneratePosition(MAX_GRID_WIDTH, 0).magnitude
                                                    - _ballSpawner.GetBallRadius()); // right
 
-        _canShoot = false;
+        _canShoot = true;
     }
 
     private void SetupCamera(GameObject mainCamera)
@@ -153,7 +154,10 @@ public class Level : MonoBehaviour
                     animationPath.Add(hitPoint);
 
                     Ray nextRay = new Ray(hitPoint, reflect);
-                    IntersectsBalls(nextRay, out hitBall, out hitInfo);
+                    if (!IntersectsBalls(nextRay, out hitBall, out hitInfo))
+                    {
+                        _ballShooter.HidePreviewBall();
+                    }
                 }
             }
         }
@@ -203,13 +207,7 @@ public class Level : MonoBehaviour
                 {
                     _canShoot = false;
                     _ballShooter.HidePreviewBall();
-                    // todo: start visiting path!
-
-
-                    // todo: execute this, when tween is done. 
-                    SpawnBallOnGrid(gridX, gridY, Ball.GenerateRandomValue());
-                    _ballShooter.NextBall();
-                    _canShoot = true;
+                    StartCoroutine(ShootBallAnimation(_ballShooter.GetCurrentBall(), gridX, gridY, animationPath));
                 }
             }
             else
@@ -353,5 +351,31 @@ public class Level : MonoBehaviour
     private bool CanShoot()
     {
         return _canShoot;
+    }
+    
+    // *************************************************
+    // Animation functions
+    // *************************************************
+
+    IEnumerator ShootBallAnimation(GameObject ball, int targetGridX, int targetGridY, List<Vector3> path)
+    {
+        const float epsilon = 0.05f;
+        const float speed = 100.0f;
+        while (path.Count > 0)
+        {
+            while (Vector3.Distance(ball.transform.position, path[0]) > epsilon)
+            {
+                ball.transform.position = Vector3.MoveTowards(ball.transform.position, path[0], Time.deltaTime * speed);
+                yield return null; 
+            }
+            
+            path.RemoveAt(0);
+            yield return null;
+        }
+        
+        SpawnBallOnGrid(targetGridX, targetGridY, Ball.GenerateRandomValue());
+        _ballShooter.NextBall();
+        _canShoot = true;
+        yield return null;
     }
 }
