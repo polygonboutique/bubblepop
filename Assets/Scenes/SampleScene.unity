@@ -1059,9 +1059,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 2087443745827952823, guid: d1529d55c572ef844ac646b44218b148, type: 3}
-  mainCamera: {fileID: 519420028}
   gameOverGroup: {fileID: 1074703700}
   winScreenGroup: {fileID: 601887178}
+  lineRenderer: {fileID: 2084380423}
 --- !u!120 &2084380423
 LineRenderer:
   m_ObjectHideFlags: 0
