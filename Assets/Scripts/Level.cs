@@ -12,13 +12,6 @@ using Vector3 = UnityEngine.Vector3;
  * - remove debug drawings
  */
 
-public enum ActionAfterMove
-{
-    MoveGrid,
-    Spawn,
-    Merge
-}
-
 public class Level : MonoBehaviour
 {
     private const int MAX_GRID_WIDTH = 6;
@@ -223,8 +216,7 @@ public class Level : MonoBehaviour
                 {
                     _canShoot = false;
                     _ballShooter.HidePreviewBall();
-                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(),
-                        gridX, gridY, animationPath, ActionAfterMove.Spawn));
+                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(), gridX, gridY, animationPath));
                 }
             }
             else
@@ -440,18 +432,12 @@ public class Level : MonoBehaviour
             path.Add(otherBall.transform.position);
             
             RemoveBallFromGrid(activeGridX, activeGridY);
-            StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
+            // StartCoroutine(MoveBallAnimation(activeBall, otherBall.GetGridXCoord(), otherBall.GetGridYCoord(), path, ActionAfterMove.Merge));
          
             // Always merge up! take the first most highest up ball to merge into. 
             
             // check, if the other ball, can has neighbours of same value:
             // if so, we put it into our cluster list and merge them all into the most "top-left" bubble
-        }
-        else if (possibleMerges.Count == 0)
-        {
-            _ballShooter.NextBall();
-            _canShoot = true;
-            _canMoveRow = true;
         }
     }
 
@@ -462,7 +448,7 @@ public class Level : MonoBehaviour
     // *************************************************
     // Animation functions
     // *************************************************
-    IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
+    IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         const float epsilon = 0.05f;
         const float speed = 100.0f;
@@ -481,25 +467,54 @@ public class Level : MonoBehaviour
         var value = ball.GetValue();
         Destroy(ball.gameObject);
 
-        switch (actionAfterMove)
-        {
-            case ActionAfterMove.MoveGrid:
-                // tell ball to move to given grid coords
-                RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
-                AssignBallToGrid(ball, targetGridX, targetGridY);
-                break;
-            case ActionAfterMove.Spawn:
-                SpawnBallOnGrid(targetGridX, targetGridY, value);
-                TryMerge(targetGridX, targetGridY);
-                break;
-            case ActionAfterMove.Merge:
-                _grid[targetGridX, targetGridY].IncreaseValue();
-                TryMerge(targetGridX, targetGridY);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(actionAfterMove), actionAfterMove, null);
-        }
+        SpawnBallOnGrid(targetGridX, targetGridY, value);
+        // TryMerge(targetGridX, targetGridY);
+        
+        _ballShooter.NextBall();
+        _canShoot = true;
+        _canMoveRow = true;
 
         yield return null;
     }
+    
+    // IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path, ActionAfterMove actionAfterMove)
+    // {
+    //     const float epsilon = 0.05f;
+    //     const float speed = 100.0f;
+    //     while (path.Count > 0)
+    //     {
+    //         while (Vector3.Distance(ball.transform.position, path[0]) > epsilon)
+    //         {
+    //             ball.transform.position = Vector3.MoveTowards(ball.transform.position, path[0], Time.deltaTime * speed);
+    //             yield return null;
+    //         }
+    //
+    //         path.RemoveAt(0);
+    //         yield return null;
+    //     }
+    //
+    //     var value = ball.GetValue();
+    //     Destroy(ball.gameObject);
+    //
+    //     switch (actionAfterMove)
+    //     {
+    //         case ActionAfterMove.MoveGrid:
+    //             // tell ball to move to given grid coords
+    //             RemoveBallFromGrid(ball.GetGridXCoord(), ball.GetGridYCoord());
+    //             AssignBallToGrid(ball, targetGridX, targetGridY);
+    //             break;
+    //         case ActionAfterMove.Spawn:
+    //             SpawnBallOnGrid(targetGridX, targetGridY, value);
+    //             TryMerge(targetGridX, targetGridY);
+    //             break;
+    //         case ActionAfterMove.Merge:
+    //             _grid[targetGridX, targetGridY].IncreaseValue();
+    //             TryMerge(targetGridX, targetGridY);
+    //             break;
+    //         default:
+    //             throw new ArgumentOutOfRangeException(nameof(actionAfterMove), actionAfterMove, null);
+    //     }
+    //
+    //     yield return null;
+    // }
 }
