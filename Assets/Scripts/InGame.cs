@@ -219,7 +219,7 @@ public class InGame : MonoBehaviour
                 {
                     _canShoot = false;
                     _ballShooter.HidePreviewBall();
-                    StartCoroutine(MoveBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(), gridX, gridY, animationPath));
+                    StartCoroutine(ShootBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(), gridX, gridY, animationPath));
                 }
             }
             else
@@ -505,7 +505,7 @@ public class InGame : MonoBehaviour
                 }
 
                 RemoveBallFromGrid(merger.GetGridXCoord(), merger.GetGridYCoord());
-                StartCoroutine(LerpBallAnimation(merger, mergeTarget.GetGridXCoord(), mergeTarget.GetGridYCoord(), path));
+                StartCoroutine(MergeBallAnimation(merger, mergeTarget.GetGridXCoord(), mergeTarget.GetGridYCoord(), path));
             }
         }
         else
@@ -582,7 +582,7 @@ public class InGame : MonoBehaviour
     // *************************************************
     // Animation functions
     // *************************************************
-    IEnumerator MoveBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
+    IEnumerator ShootBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         const float epsilon = 0.05f;
         const float speed = 165.0f;
@@ -607,7 +607,7 @@ public class InGame : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator LerpBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
+    IEnumerator MergeBallAnimation(Ball ball, int targetGridX, int targetGridY, List<Vector3> path)
     {
         float elapsed = 0;
         float targetDuration = 0.32f; // seconds
