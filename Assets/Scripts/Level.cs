@@ -8,12 +8,10 @@ using Vector3 = UnityEngine.Vector3;
 
 /*
  * todos:
- * - rename this file to "InGame" and remove "Level"
- * - move game over check to "Main"
  * - remove debug drawings
  */
 
-public class Level : MonoBehaviour
+public class InGame : MonoBehaviour
 {
     private const int MAX_GRID_WIDTH = 6;
     private const int MAX_GRID_HEIGHT = 10;
@@ -108,10 +106,10 @@ public class Level : MonoBehaviour
             if (_mergeTarget.ReachedMaxValue())
             {
                 RemoveBallFromGrid(_mergeTarget.GetGridXCoord(), _mergeTarget.GetGridYCoord());
-                Destroy(_mergeTarget.gameObject);
+                TriggerExplosion(_mergeTarget.GetGridXCoord(), _mergeTarget.GetGridYCoord());
 
-                // Trigger explosion + animation
-                // remove surrounding neighbours
+                // Trigger animation
+                Destroy(_mergeTarget.gameObject);
             }
 
             // Check balls are supposed to fall down =>
@@ -400,6 +398,53 @@ public class Level : MonoBehaviour
         return _numLerpAnimationsRunning == 0;
     }
 
+    private List<Ball> GatherNeighboursBalls(int gridX, int gridY)
+    {
+        List<Ball> neighbours = new List<Ball>();
+
+        bool isEvenRow = gridY % 2 == 0;
+
+        int topY = gridY - 1;
+        int bottomY = gridY + 1;
+        int diagonalLeftX = gridX + (isEvenRow ? -1 : 0);
+        int diagonalRightX = gridX + (isEvenRow ? 0 : 1);
+        int leftX = gridX - 1;
+        int rightX = gridX + 1;
+
+        // check top-left, top-right, right, bottom-right, bottom-left, left
+        if (CoordinatesInRange(diagonalLeftX, topY) && CoordinatesOccupied(diagonalLeftX, topY))
+        {
+            neighbours.Add(_grid[diagonalLeftX, topY]);
+        }
+
+        if (CoordinatesInRange(diagonalRightX, topY) && CoordinatesOccupied(diagonalRightX, topY))
+        {
+            neighbours.Add(_grid[diagonalRightX, topY]);
+        }
+
+        if (CoordinatesInRange(rightX, gridY) && CoordinatesOccupied(rightX, gridY))
+        {
+            neighbours.Add(_grid[rightX, gridY]);
+        }
+
+        if (CoordinatesInRange(diagonalRightX, bottomY) && CoordinatesOccupied(diagonalRightX, bottomY))
+        {
+            neighbours.Add(_grid[diagonalRightX, bottomY]);
+        }
+
+        if (CoordinatesInRange(diagonalLeftX, bottomY) && CoordinatesOccupied(diagonalLeftX, bottomY))
+        {
+            neighbours.Add(_grid[diagonalLeftX, bottomY]);
+        }
+
+        if (CoordinatesInRange(leftX, gridY) && CoordinatesOccupied(leftX, gridY))
+        {
+            neighbours.Add(_grid[leftX, gridY]);
+        }
+
+        return neighbours;
+    }
+
     private void GatherClusters(int gridX, int gridY, ref List<Ball> ballCluster)
     {
         Ball activeBall = _grid[gridX, gridY];
@@ -413,8 +458,7 @@ public class Level : MonoBehaviour
         int rightX = gridX + 1;
 
         // check top-left, top-right, right, bottom-right, bottom-left, left
-        if (CoordinatesInRange(diagonalLeftX, topY)
-            && CoordinatesOccupied(diagonalLeftX, topY))
+        if (CoordinatesInRange(diagonalLeftX, topY) && CoordinatesOccupied(diagonalLeftX, topY))
         {
             Ball ball = _grid[diagonalLeftX, topY];
             if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
@@ -424,9 +468,7 @@ public class Level : MonoBehaviour
             }
         }
 
-        if (CoordinatesInRange(diagonalRightX, topY)
-            && CoordinatesOccupied(diagonalRightX, topY)
-            && activeBall.CanMerge(_grid[diagonalRightX, topY]))
+        if (CoordinatesInRange(diagonalRightX, topY) && CoordinatesOccupied(diagonalRightX, topY))
         {
             Ball ball = _grid[diagonalRightX, topY];
             if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
@@ -436,9 +478,7 @@ public class Level : MonoBehaviour
             }
         }
 
-        if (CoordinatesInRange(rightX, gridY)
-            && CoordinatesOccupied(rightX, gridY)
-            && activeBall.CanMerge(_grid[rightX, gridY]))
+        if (CoordinatesInRange(rightX, gridY) && CoordinatesOccupied(rightX, gridY))
         {
             Ball ball = _grid[rightX, gridY];
             if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
@@ -448,9 +488,7 @@ public class Level : MonoBehaviour
             }
         }
 
-        if (CoordinatesInRange(diagonalRightX, bottomY)
-            && CoordinatesOccupied(diagonalRightX, bottomY)
-            && activeBall.CanMerge(_grid[diagonalRightX, bottomY]))
+        if (CoordinatesInRange(diagonalRightX, bottomY) && CoordinatesOccupied(diagonalRightX, bottomY))
         {
             Ball ball = _grid[diagonalRightX, bottomY];
             if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
@@ -460,9 +498,7 @@ public class Level : MonoBehaviour
             }
         }
 
-        if (CoordinatesInRange(diagonalLeftX, bottomY)
-            && CoordinatesOccupied(diagonalLeftX, bottomY)
-            && activeBall.CanMerge(_grid[diagonalLeftX, bottomY]))
+        if (CoordinatesInRange(diagonalLeftX, bottomY) && CoordinatesOccupied(diagonalLeftX, bottomY))
         {
             Ball ball = _grid[diagonalLeftX, bottomY];
             if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
@@ -472,9 +508,7 @@ public class Level : MonoBehaviour
             }
         }
 
-        if (CoordinatesInRange(leftX, gridY)
-            && CoordinatesOccupied(leftX, gridY)
-            && activeBall.CanMerge(_grid[leftX, gridY]))
+        if (CoordinatesInRange(leftX, gridY) && CoordinatesOccupied(leftX, gridY))
         {
             Ball ball = _grid[leftX, gridY];
             if (activeBall.CanMerge(ball) && !ballCluster.Contains(ball))
@@ -535,6 +569,11 @@ public class Level : MonoBehaviour
         {
             NextTurn();
         }
+    }
+
+    private void TriggerExplosion(int gridX, int gridY)
+    {
+        // remove surrounding neighbours
     }
 
     // *************************************************
