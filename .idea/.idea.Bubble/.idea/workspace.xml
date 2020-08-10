@@ -24,7 +24,13 @@
   <component name="ChangeListManager">
     <list default="true" id="258c9b9c-ccec-4df4-91c1-30e917701936" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Bubble/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Bubble/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/InGame.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/InGame.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Assembly-CSharp.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Ball.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Ball.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/EditorUserBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Library/EditorUserBuildSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Library/ShaderCache/EditorEncounteredVariants" beforeDir="false" afterPath="$PROJECT_DIR$/Library/ShaderCache/EditorEncounteredVariants" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/Assembly-CSharp.csprojAssemblyReference.cache" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +59,7 @@
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Main.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/da/5b0c55d9/Color.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Ball.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4BEC26B5-CBC7-4715-8442-F1499E984732/1a/7dbea1c5/Random.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/20/854a62a0/Plane.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2E6610ED-2984-4F85-A379-24F81509FE5D/eb/6fa1d969/Object.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -61,11 +68,11 @@
       <list>
         <option value="$PROJECT_DIR$/Assets/Scripts/EventSystem.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Level.cs" />
-        <option value="$PROJECT_DIR$/Assets/Scripts/Ball.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/BallShooter.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/Main.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/BallSpawner.cs" />
         <option value="$PROJECT_DIR$/Assets/Scripts/InGame.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Ball.cs" />
       </list>
     </option>
   </component>
@@ -121,7 +128,8 @@
       <workItem from="1596984669243" duration="43000" />
       <workItem from="1596984755315" duration="9846000" />
       <workItem from="1596997987783" duration="578000" />
-      <workItem from="1597042088002" duration="323000" />
+      <workItem from="1597042088002" duration="426000" />
+      <workItem from="1597050394965" duration="51000" />
     </task>
     <servers />
   </component>

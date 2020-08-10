@@ -6,7 +6,7 @@ using Random = System.Random;
 public class Ball : MonoBehaviour
 {
     private static int MAX_VALUE = 2048;
-    private static Random rng = new Random(0);
+    private static Random rng = new Random();
 
     private int _value = 2;
     private int _gridX, _gridY;
