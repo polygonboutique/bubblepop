@@ -265,6 +265,7 @@ public class InGame : MonoBehaviour
         if (_mouse_down && Input.GetMouseButtonUp(0))
         {
             _mouse_down = false;
+            _lineRenderer.positionCount = 0;
         }
     }
 
