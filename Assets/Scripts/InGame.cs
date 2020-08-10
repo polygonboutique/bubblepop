@@ -32,6 +32,8 @@ public class InGame : MonoBehaviour
     private GameObject _winScreenGroup;
     private LineRenderer _lineRenderer;
 
+    private bool _mouse_down;
+
     // *************************************************
     // Init and set-up
     // *************************************************
@@ -45,12 +47,12 @@ public class InGame : MonoBehaviour
         GameObject winScreenGroup, LineRenderer lineRenderer, float ballSize)
     {
         name = "Ingame";
-        
+
         _ballPrefab = ballPrefab;
         _gameOverGroup = gameOverGroup;
         _winScreenGroup = winScreenGroup;
         _lineRenderer = lineRenderer;
-        
+
         gameOverGroup.SetActive(false);
         winScreenGroup.SetActive(false);
 
@@ -89,7 +91,7 @@ public class InGame : MonoBehaviour
         _ballSpawnerGo = new GameObject();
         _ballSpawnerGo.name = "BallSpawner";
         _ballSpawnerGo.transform.parent = transform;
-        
+
         _ballSpawner = _ballSpawnerGo.AddComponent<BallSpawner>();
         _ballSpawner.Initialize(ballPrefab, ballScale);
     }
@@ -120,11 +122,18 @@ public class InGame : MonoBehaviour
             _gameOverGroup.SetActive(true);
             return;
         }
-        else if (ReachedWinState())
+
+        if (ReachedWinState())
         {
             _winScreenGroup.SetActive(true);
             return;
         }
+
+        if (!_mouse_down && Input.GetMouseButtonDown(0))
+        {
+            _mouse_down = true;
+        }
+
 
         if (_mergeAnimationsRunning && LerpAnimationsCompleted())
         {
@@ -157,95 +166,105 @@ public class InGame : MonoBehaviour
         {
             return;
         }
-
-        Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseCoordsWorldSpace.z = 0;
-        Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
-        Ray ray = new Ray(_ballShooter.GetPosition(), shootDirection);
-
-        List<Vector3> linesToDraw = new List<Vector3>();
-        linesToDraw.Add(_ballShooter.GetPosition());
-
-        GameObject hitBall;
-        RaycastHit hitInfo;
-        List<Vector3> animationPath = new List<Vector3>();
-        if (!IntersectsBalls(ray, out hitBall, out hitInfo))
+        
+        if (_mouse_down)
         {
-            float closestDistance = Single.PositiveInfinity;
-            Plane closestPlane = _boundsPlanes[0];
-            Vector3 closestHitPoint = new Vector3();
-            bool didHitPlane = false;
+            Vector3 mouseCoordsWorldSpace = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mouseCoordsWorldSpace.z = 0;
+            Vector3 shootDirection = (mouseCoordsWorldSpace - _ballShooter.GetPosition()).normalized;
+            Ray ray = new Ray(_ballShooter.GetPosition(), shootDirection);
 
-            // => max 1 reflection
-            // track nearest intersection point and store "next ray" here, then after the loop we do 1 more intersection test vs balls
-            for (int i = 0; i < _boundsPlanes.Length; ++i)
+            List<Vector3> linesToDraw = new List<Vector3>();
+            linesToDraw.Add(_ballShooter.GetPosition());
+
+            GameObject hitBall;
+            RaycastHit hitInfo;
+            List<Vector3> animationPath = new List<Vector3>();
+            if (!IntersectsBalls(ray, out hitBall, out hitInfo))
             {
-                Plane plane = _boundsPlanes[i];
-                if (plane.Raycast(ray, out float enter))
-                {
-                    didHitPlane = true;
-                    Vector3 hitPoint = ray.GetPoint(enter);
+                float closestDistance = Single.PositiveInfinity;
+                Plane closestPlane = _boundsPlanes[0];
+                Vector3 closestHitPoint = new Vector3();
+                bool didHitPlane = false;
 
-                    float distance = Vector3.Distance(_ballShooter.GetPosition(), hitPoint);
-                    if (distance < closestDistance)
+                // => max 1 reflection
+                // track nearest intersection point and store "next ray" here, then after the loop we do 1 more intersection test vs balls
+                for (int i = 0; i < _boundsPlanes.Length; ++i)
+                {
+                    Plane plane = _boundsPlanes[i];
+                    if (plane.Raycast(ray, out float enter))
                     {
-                        closestDistance = distance;
-                        closestPlane = plane;
-                        closestHitPoint = hitPoint;
+                        didHitPlane = true;
+                        Vector3 hitPoint = ray.GetPoint(enter);
+
+                        float distance = Vector3.Distance(_ballShooter.GetPosition(), hitPoint);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestPlane = plane;
+                            closestHitPoint = hitPoint;
+                        }
                     }
+                }
+
+                if (didHitPlane)
+                {
+                    Vector3 reflect = Vector3.Reflect(ray.direction, closestPlane.normal);
+
+                    // add plane intersection point to path
+                    animationPath.Add(closestHitPoint);
+                    linesToDraw.Add(closestHitPoint);
+
+                    Ray nextRay = new Ray(closestHitPoint, reflect);
+                    IntersectsBalls(nextRay, out hitBall, out hitInfo);
+                    _ballShooter.HidePreviewBall();
                 }
             }
 
-            if (didHitPlane)
+            if (hitBall)
             {
-                Vector3 reflect = Vector3.Reflect(ray.direction, closestPlane.normal);
-
-                // add plane intersection point to path
-                animationPath.Add(closestHitPoint);
-                linesToDraw.Add(closestHitPoint);
-
-                Ray nextRay = new Ray(closestHitPoint, reflect);
-                IntersectsBalls(nextRay, out hitBall, out hitInfo);
-                _ballShooter.HidePreviewBall();
-            }
-        }
-
-        if (hitBall)
-        {
-            linesToDraw.Add(hitInfo.point);
-            _lineRenderer.positionCount = linesToDraw.Count;
-            for (int i = 0; i < linesToDraw.Count; ++i)
-            {
-                _lineRenderer.SetPosition(i, linesToDraw[i]);
-            }
-
-            var hitBallComp = hitBall.GetComponent<Ball>();
-            var gridPosition = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
-            var centerToHitDir = (hitInfo.point - gridPosition).normalized;
-
-            if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
-            {
-                Vector3 nextPosition = _ballSpawner.GeneratePosition(gridX, gridY);
-                _ballShooter.ShowPreviewBall(nextPosition);
-
-                // add next ball position to path
-                animationPath.Add(nextPosition);
-
-                if (Input.GetButtonDown("Fire1"))
+                linesToDraw.Add(hitInfo.point);
+                _lineRenderer.positionCount = linesToDraw.Count;
+                for (int i = 0; i < linesToDraw.Count; ++i)
                 {
-                    _canShoot = false;
+                    _lineRenderer.SetPosition(i, linesToDraw[i]);
+                }
+
+                var hitBallComp = hitBall.GetComponent<Ball>();
+                var gridPosition = _ballSpawner.GeneratePosition(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord());
+                var centerToHitDir = (hitInfo.point - gridPosition).normalized;
+
+                if (PlaceOnGrid(hitBallComp.GetGridXCoord(), hitBallComp.GetGridYCoord(), centerToHitDir, out var gridX, out var gridY))
+                {
+                    Vector3 nextPosition = _ballSpawner.GeneratePosition(gridX, gridY);
+                    _ballShooter.ShowPreviewBall(nextPosition);
+
+                    // add next ball position to path
+                    animationPath.Add(nextPosition);
+
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        _canShoot = false;
+                        _ballShooter.HidePreviewBall();
+                        StartCoroutine(ShootBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(), gridX, gridY, animationPath));
+                        _lineRenderer.positionCount = 0;
+                    }
+                }
+                else
+                {
                     _ballShooter.HidePreviewBall();
-                    StartCoroutine(ShootBallAnimation(_ballShooter.GetCurrentBall().GetComponent<Ball>(), gridX, gridY, animationPath));
                 }
             }
             else
             {
-                _ballShooter.HidePreviewBall();
+                _lineRenderer.positionCount = 0;
             }
         }
-        else
+
+
+        if (_mouse_down && Input.GetMouseButtonUp(0))
         {
-            _lineRenderer.positionCount = 0;
+            _mouse_down = false;
         }
     }
 
